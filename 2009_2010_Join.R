@@ -27,7 +27,7 @@ demo_09_10 <- nhanes("DEMO_F")
 
 
 # Cleaning Diabetes Dataset
-dia_09_10$DIQ172 <- c()
+#dia_09_10$DIQ172 <- c()
 
 # ---------------Join all together-------------------------------------
 df_full <- merge(x = dia_09_10, y = hdl_09_10, by = "SEQN", all = TRUE)
