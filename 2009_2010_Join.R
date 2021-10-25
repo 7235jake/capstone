@@ -1,5 +1,6 @@
 library(nhanesA)
 library(tibble)
+library(dplyr)
 
 # Diabetes
 dia_09_10 <- nhanes("DIQ_F")
@@ -9,7 +10,8 @@ chol_09_10 <- nhanes("TCHOL_F")
 glu_09_10 <- nhanes("GLU_F")
 
 # Obesity
-cb_09_10 <- nhanes("CBQPFC_F")
+cbq_09_10 <- nhanes("CBQ_F")
+cbq_adult_09_10 <- nhanes("CBQPFC_F")
 hsq_09_10 <- nhanes("HSQ_F")
 dbq_09_10 <- nhanes("DBQ_F")
 mcq_09_10 <- nhanes("MCQ_F")
@@ -87,24 +89,24 @@ dia_09_10$DIQ010[dia_09_10$DIQ010 != 1] <- 2
 # If above 80 -> Missing
 dia_09_10$DID040[dia_09_10$DID040 > 80] <- NA
 # If not 1 change to 2
-dia_09_10$DIQ160[dia_09_10$DIQ160 != 1] <- 2
+dia_09_10$DIQ160[dia_09_10$DIQ160 == 7 | dia_09_10$DIQ160 == 9] <- 2
 # If not 1 change to 2
-dia_09_10$DIQ170[dia_09_10$DIQ170 != 1] <- 2
+dia_09_10$DIQ170[dia_09_10$DIQ170 == 7 | dia_09_10$DIQ170 == 9] <- 2
 # If not 1 change to 2
-dia_09_10$DIQ180[dia_09_10$DIQ180 != 1] <- 2
+dia_09_10$DIQ180[dia_09_10$DIQ180 == 7 | dia_09_10$DIQ180 == 9] <- 2
 # If not 1 change to 2
-dia_09_10$DIQ050[dia_09_10$DIQ050 != 1] <- 2
+dia_09_10$DIQ050[dia_09_10$DIQ050 == 7 | dia_09_10$DIQ050 == 9] <- 2
 # change values > 666 to NA
 dia_09_10$DID060[dia_09_10$DID060 > 666] <- NA
 # If not 1 change to 2
-dia_09_10$DIQ070[dia_09_10$DIQ070 != 1] <- 2
+dia_09_10$DIQ070[dia_09_10$DIQ070 == 7 | dia_09_10$DIQ070 == 9] <- 2
 # change values > 600 to NA
 dia_09_10$DID260[dia_09_10$DID260 > 600] <- NA
 # Change values = 999 to zero
 dia_09_10$DID341[dia_09_10$DID341 == 9999] <- 0
 dia_09_10$DID350[dia_09_10$DID350 == 9999] <- 0
 # If not 1 change to 2
-dia_09_10$DIQ080[dia_09_10$DIQ080 != 1] <- 2
+dia_09_10$DIQ080[dia_09_10$DIQ080 == 7 | dia_09_10$DIQ080 == 9] <- 2
 
 
 
@@ -125,6 +127,48 @@ diabetes <- merge(x = diabetes, y = glu_09_10, by = "SEQN", all = TRUE)
 
 
 # -------------------- Obesity --------------------------
+
+# -- Consumer Behavior -- 
+cbq_09_10$CBD070[cbq_09_10$CBD070 >= 777777 ] <- NA
+cbq_09_10$CBD091[cbq_09_10$CBD091 >= 777777 ] <- NA
+cbq_09_10$CBD111[cbq_09_10$CBD111 >= 777777 ] <- NA
+cbq_09_10$CBD121[cbq_09_10$CBD121 >= 777777 ] <- NA
+cbq_09_10$CBD131[cbq_09_10$CBD131 >= 777777 ] <- NA
+
+# -- Consumer Behavior Adult --
+# Add Variables
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ581 = NA, .after = "CBQ550")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ586 = NA, .after = "CBQ581")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ830 = NA, .after = "CBQ586")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ835 = NA, .after = "CBQ830")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ840 = NA, .after = "CBQ835")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ845 = NA, .after = "CBQ840")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ850 = NA, .after = "CBQ845")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ855 = NA, .after = "CBQ850")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ860 = NA, .after = "CBQ860")
+
+
+
+
+
+# Clean Variables
+cbq_adult_09_10$CBQ502[cbq_adult_09_10$CBQ502 == 7 | cbq_adult_09_10$CBQ502 == 9] <- 2
+cbq_adult_09_10$CBQ503[cbq_adult_09_10$CBQ503 == 7 | cbq_adult_09_10$CBQ503 == 9] <- 2
+cbq_adult_09_10$CBQ505[cbq_adult_09_10$CBQ505 == 7 | cbq_adult_09_10$CBQ505 == 9] <- 2
+cbq_adult_09_10$CBQ535[cbq_adult_09_10$CBQ535 == 7 | cbq_adult_09_10$CBQ535 == 9] <- 2
+cbq_adult_09_10$CBQ540[cbq_adult_09_10$CBQ540 == 7 | cbq_adult_09_10$CBQ540 == 9] <- 2
+cbq_adult_09_10$CBQ550[cbq_adult_09_10$CBQ550 == 7 | cbq_adult_09_10$CBQ550 == 9] <- 2
+
+
+# Rename
+cbq_adult_09_10 %>% 
+  rename(
+    CBQ505 = CBQ506,
+    CBQ535 = CBQ536,
+    CBQ540 = CBQ541,
+    CBQ550 = CBQ551
+  )
+
 
 df_full <- merge(x = df_full, y = cb_09_10, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = hsq_09_10, by = "SEQN", all = TRUE)
