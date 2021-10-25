@@ -1,4 +1,5 @@
 library(nhanesA)
+library(tibble)
 
 # Diabetes
 dia_09_10 <- nhanes("DIQ_F")
@@ -26,14 +27,105 @@ bpq_09_10 <- nhanes("BPQ_F")
 demo_09_10 <- nhanes("DEMO_F")
 
 
-# Cleaning Diabetes Dataset
-#dia_09_10$DIQ172 <- c()
+# -------------------Cleaning Diabetes Dataset-------------------------
 
-# ---------------Join all together-------------------------------------
-df_full <- merge(x = dia_09_10, y = hdl_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = tri_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = chol_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = glu_09_10, by = "SEQN", all = TRUE)
+#--Adding Columns--
+# Adding "Feel could be at risk for diabetes" 
+dia_09_10 <- add_column(dia_09_10, DIQ172 = NA, .after = "DIQ170")
+
+# Adding "Why you think you are  at risk for diabetes or prediabetes?"
+dia_09_10 <- add_column(dia_09_10, DIQ175A = NA, .after = "DIQ172")
+dia_09_10 <- add_column(dia_09_10, DIQ175B = NA, .after = "DIQ175A")
+dia_09_10 <- add_column(dia_09_10, DIQ175C = NA, .after = "DIQ175B")
+dia_09_10 <- add_column(dia_09_10, DIQ175D = NA, .after = "DIQ175C")
+dia_09_10 <- add_column(dia_09_10, DIQ175E = NA, .after = "DIQ175D")
+dia_09_10 <- add_column(dia_09_10, DIQ175F = NA, .after = "DIQ175E")
+dia_09_10 <- add_column(dia_09_10, DIQ175G = NA, .after = "DIQ175F")
+dia_09_10 <- add_column(dia_09_10, DIQ175H = NA, .after = "DIQ175G")
+dia_09_10 <- add_column(dia_09_10, DIQ175I = NA, .after = "DIQ175H")
+dia_09_10 <- add_column(dia_09_10, DIQ175J = NA, .after = "DIQ175I")
+dia_09_10 <- add_column(dia_09_10, DIQ175K = NA, .after = "DIQ175J")
+dia_09_10 <- add_column(dia_09_10, DIQ175L = NA, .after = "DIQ175K")
+dia_09_10 <- add_column(dia_09_10, DIQ175M = NA, .after = "DIQ175L")
+dia_09_10 <- add_column(dia_09_10, DIQ175N = NA, .after = "DIQ175M")
+dia_09_10 <- add_column(dia_09_10, DIQ175O = NA, .after = "DIQ175N")
+dia_09_10 <- add_column(dia_09_10, DIQ175P = NA, .after = "DIQ175O")
+dia_09_10 <- add_column(dia_09_10, DIQ175Q = NA, .after = "DIQ175P")
+dia_09_10 <- add_column(dia_09_10, DIQ175R = NA, .after = "DIQ175Q")
+dia_09_10 <- add_column(dia_09_10, DIQ175S = NA, .after = "DIQ175R")
+dia_09_10 <- add_column(dia_09_10, DIQ175T = NA, .after = "DIQ175S")
+dia_09_10 <- add_column(dia_09_10, DIQ175U = NA, .after = "DIQ175T")
+dia_09_10 <- add_column(dia_09_10, DIQ175V = NA, .after = "DIQ175U")
+dia_09_10 <- add_column(dia_09_10, DIQ175W = NA, .after = "DIQ175V")
+dia_09_10 <- add_column(dia_09_10, DIQ175X = NA, .after = "DIQ175W")
+
+# Adding Past year Dr checked for A1C
+dia_09_10 <- add_column(dia_09_10, DIQ275 = NA, .after = "DIQ260U")
+# Adding What was your last A1C level
+dia_09_10 <- add_column(dia_09_10, DIQ280 = NA, .after = "DIQ275")
+# Adding What does Dr say A1C should be
+dia_09_10 <- add_column(dia_09_10, DIQ291 = NA, .after = "DIQ280")
+# Adding What was your recent SBP
+dia_09_10 <- add_column(dia_09_10, DIQ300S = NA, .after = "DIQ291")
+# Adding What was your recent DBP
+dia_09_10 <- add_column(dia_09_10, DIQ300D = NA, .after = "DIQ300S")
+# Adding What does Dr say SBP should be
+dia_09_10 <- add_column(dia_09_10, DID310S = NA, .after = "DIQ300D")
+# Adding What does Dr say DBP should be
+dia_09_10 <- add_column(dia_09_10, DID310D = NA, .after = "DID310S")
+# Adding What was most recent LDL number
+dia_09_10 <- add_column(dia_09_10, DID320 = NA, .after = "DID310D")
+# Adding What does Dr say LDL should be
+dia_09_10 <- add_column(dia_09_10, DID330 = NA, .after = "DID320")
+
+
+
+# --Clean Variables--
+
+# Changing to 1 or 2
+dia_09_10$DIQ010[dia_09_10$DIQ010 != 1] <- 2
+# If above 80 -> Missing
+dia_09_10$DID040[dia_09_10$DID040 > 80] <- NA
+# If not 1 change to 2
+dia_09_10$DIQ160[dia_09_10$DIQ160 != 1] <- 2
+# If not 1 change to 2
+dia_09_10$DIQ170[dia_09_10$DIQ170 != 1] <- 2
+# If not 1 change to 2
+dia_09_10$DIQ180[dia_09_10$DIQ180 != 1] <- 2
+# If not 1 change to 2
+dia_09_10$DIQ050[dia_09_10$DIQ050 != 1] <- 2
+# change values > 666 to NA
+dia_09_10$DID060[dia_09_10$DID060 > 666] <- NA
+# If not 1 change to 2
+dia_09_10$DIQ070[dia_09_10$DIQ070 != 1] <- 2
+# change values > 600 to NA
+dia_09_10$DID260[dia_09_10$DID260 > 600] <- NA
+# Change values = 999 to zero
+dia_09_10$DID341[dia_09_10$DID341 == 9999] <- 0
+dia_09_10$DID350[dia_09_10$DID350 == 9999] <- 0
+# If not 1 change to 2
+dia_09_10$DIQ080[dia_09_10$DIQ080 != 1] <- 2
+
+
+
+# --Join Cholesterol - High - Density Lipoprotein (HDL)-
+diabetes <- merge(x = dia_09_10, y = hdl_09_10, by = "SEQN", all = TRUE)
+
+# --Join Cholesterol - Low-Density Lipoproteins (LDL) & Triglycerides---
+diabetes <- merge(x = diabetes, y = tri_09_10, by = "SEQN", all = TRUE)
+
+# --Join Cholesterol - Total--
+diabetes <- merge(x = diabetes, y = chol_09_10, by = "SEQN", all = TRUE)
+
+# --Join Insulin--
+# -- Delete some columns from the insulin dataset. 
+glu_09_10 <- subset(glu_09_10, select = -c(WTSAF2YR, LBXGLU, LBXIN, PHAFSTHR, PHAFSTMN))
+glu_09_10 <- add_column(glu_09_10, LBDINLC = NA, .after = "LBDINSI")
+diabetes <- merge(x = diabetes, y = glu_09_10, by = "SEQN", all = TRUE)
+
+
+# -------------------- Obesity --------------------------
+
 df_full <- merge(x = df_full, y = cb_09_10, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = hsq_09_10, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = dbq_09_10, by = "SEQN", all = TRUE)
