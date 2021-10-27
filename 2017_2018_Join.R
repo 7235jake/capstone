@@ -79,13 +79,6 @@ for (i in seq_along(col_headers)){
     col_headers[i] <- substring(col_headers[i], 1, nchar(col_headers[i])-2)
     
   }
-  # Set last character to lowercase if is a letter and letter before is number
-  #strtoi is string to integer
-  # if (is.na ( strtoi(  substring( col_headers[i], nchar( col_headers[i]) ) ) )  
-  #     && !is.na( strtoi( substring( col_headers[i], nchar( col_headers[i]) -1, nchar(col_headers[i]) -1) ) ) ){
-  #       col_headers[i] <- paste(substring(col_headers[i], 1, nchar(col_headers[i])-1),
-  #                         tolower(substring(col_headers[i], nchar(col_headers[i]))), sep = "")
-  #}
 }
 
 
@@ -96,17 +89,19 @@ colnames(df_full) <- col_headers
 #------- Run script to determine which questions need responses mapped -------------------
 # response_values = list()
 # 
+# # Go through all columns in dataframe
 # for (i in seq_along(colnames(df_full))) {
+#   #Translate call for SEQN returns an error so skip over
 #   if(colnames(df_full[i])=='SEQN'){
 #     i = i+1
 #   }
+#   # Grab translation of column
 #   tran <- translate(colnames(df_full[i]))
-#   id <- names(tran)[1]
 #   
+#   #tryCatch to avoid questions that will throw errors in translation method (ex: skip item)
 #   responses <- tryCatch(data.frame(tran[1])[,2], error = function(e) {NULL})
 #   if (('Yes' %in% responses && !('Range of Values' %in% responses)) ||
 #       ('No' %in% responses && !('Range of Values' %in% responses))){
-#     #question_var <- append(question_var,id)
 #     response_values <- append(response_values,tran)
 #   }
 # }
@@ -115,11 +110,17 @@ colnames(df_full) <- col_headers
 
 
 #---------- Change question responses ----------------
+# Goal: Change all responses not 1 (Yes) or NA to be 2 (No)
+
+#Store questions identifiers that need responses changed
 questions <- names(response_values)
+
 for (i in seq_along(questions)){
+  #Determine column number corresponding to question identifier
   col_num <- which(colnames(df_full) == questions[i])
   
   for (row in seq_along(df_full[,col_num])){
+    
     if( df_full[row,col_num] != 1 && df_full[row,col_num] != 2 && !is.na(df_full[row,col_num])){
       df_full[row,col_num] <- 2
     }
