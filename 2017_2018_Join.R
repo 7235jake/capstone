@@ -1,5 +1,24 @@
 library(nhanesA)
 
+
+#------------ Create translation function -----------
+translate <- function(cols){
+  table_names <- c("DIQ_J", "HDL_J","TRIGLY_J", "TCHOL_J", "GLU_J", "INS_J", "CBQPFC_J", "HSQ_J", "DBQ_J",  
+                   "MCQ_J", "PAQ_J", "PFQ_J", "WHQ_J", "CBQ_J", 
+                   "CBQPFA_J", "MCQ_J", "BMX_J", "BPQ_J", "DEMO_J")
+  trans_table <- list()
+  for (i in seq_along(table_names)){
+    if(length(nhanesTranslate(table_names[i], colnames = cols)) > 0){
+      return((nhanesTranslate(table_names[i], colnames = cols)))
+    }
+  }
+  return (0)
+  
+}
+
+
+
+
 # Diabetes
 dia_17_18 <- nhanes("DIQ_J")
 hdl_17_18 <- nhanes("HDL_J")
@@ -46,11 +65,9 @@ df_full <- merge(x = df_full, y = pfq_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = whq_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = cbq_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = cbqpfa_17_18, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = mcq_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = bmx_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = bpq_17_18, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = demo_17_18, by = "SEQN", all = TRUE)
-
 
 col_headers <- colnames(df_full)
 
@@ -70,48 +87,48 @@ for (i in seq_along(col_headers)){
   #                         tolower(substring(col_headers[i], nchar(col_headers[i]))), sep = "")
   #}
 }
-#------------ Create translation function -----------
-translate <- function(cols){
-  table_names <- c("DIQ_J", "HDL_J","TRIGLY_J", "TCHOL_J", "GLU_J", "INS_J", "CBQPFC_J", "HSQ_J", "DBQ_J",  
-                   "MCQ_J", "PAQ_J", "PFQ_J", "WHQ_J", "CBQ_J", 
-                   "CBQPFA_J", "MCQ_J", "BMX_J", "BPQ_J", "DEMO_J")
-  trans_table <- list()
-  for (i in seq_along(table_names)){
-    if(length(nhanesTranslate(table_names[i], colnames = cols)) > 0){
-      return((nhanesTranslate(table_names[i], colnames = cols)))
-    }
-  }
-  return (0)
-  
-}
 
 
 colnames(df_full) <- col_headers
 
 
-#frame <- (nhanesTranslate("DIQ_J", colnames = c("DIQ010","DID040")))
-#data.frame(frame[1])[,2]
-#names(frame)[1]
 
-response_values = list()
-a <- translate("MCQ371A")
-#question_var <- list()
-for (i in 501:length(colnames(df_full))) {
-  if(colnames(df_full[i])=='SEQN'){
-    i = i+1
-  }
-  tran <- translate(colnames(df_full[i]))
-  id <- names(tran)[1]
-  
-  responses <- tryCatch(data.frame(tran[1])[,2], error = function(e) {NULL})
-  if (('Yes' %in% responses && !('Range of Values' %in% responses)) ||
-      ('No' %in% responses && !('Range of Values' %in% responses))){
-    #question_var <- append(question_var,id)
-    response_values <- append(response_values,tran)
-  }
-}
+#------- Run script to determine which questions need responses mapped -------------------
+# response_values = list()
+# 
+# for (i in seq_along(colnames(df_full))) {
+#   if(colnames(df_full[i])=='SEQN'){
+#     i = i+1
+#   }
+#   tran <- translate(colnames(df_full[i]))
+#   id <- names(tran)[1]
+#   
+#   responses <- tryCatch(data.frame(tran[1])[,2], error = function(e) {NULL})
+#   if (('Yes' %in% responses && !('Range of Values' %in% responses)) ||
+#       ('No' %in% responses && !('Range of Values' %in% responses))){
+#     #question_var <- append(question_var,id)
+#     response_values <- append(response_values,tran)
+#   }
+# }
 
 #save(response_values, file = "ResponseCleaningIdentifiers.RData")
 
 
-colnames(df_full)
+#---------- Change question responses ----------------
+questions <- names(response_values)
+for (i in seq_along(questions)){
+  col_num <- which(colnames(df_full) == questions[i])
+  
+  for (row in seq_along(df_full[,col_num])){
+    if( df_full[row,col_num] != 1 && df_full[row,col_num] != 2 && !is.na(df_full[row,col_num])){
+      df_full[row,col_num] <- 2
+    }
+    
+  }
+}
+
+#---------- Check if responses have changed ------------
+for (i in seq(questions)){
+  print(questions[i])
+  print(table(df_full[c(questions[i])]))
+}
