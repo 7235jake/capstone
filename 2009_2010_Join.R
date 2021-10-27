@@ -11,7 +11,8 @@ glu_09_10 <- nhanes("GLU_F")
 
 # Obesity
 cbq_09_10 <- nhanes("CBQ_F")
-cbq_adult_09_10 <- nhanes("CBQPFC_F")
+cbq_adult_09_10 <- nhanes("CBQPFA_F")
+cbq_child_09_10 <- nhanes("CBQPFC_F")
 hsq_09_10 <- nhanes("HSQ_F")
 dbq_09_10 <- nhanes("DBQ_F")
 mcq_09_10 <- nhanes("MCQ_F")
@@ -145,8 +146,62 @@ cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ840 = NA, .after = "CBQ835")
 cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ845 = NA, .after = "CBQ840")
 cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ850 = NA, .after = "CBQ845")
 cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ855 = NA, .after = "CBQ850")
-cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ860 = NA, .after = "CBQ860")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ860 = NA, .after = "CBQ855")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ865 = NA, .after = "CBQ860")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ870 = NA, .after = "CBQ865")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ875 = NA, .after = "CBQ870")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ880 = NA, .after = "CBQ875")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ885 = NA, .after = "CBQ880")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ890 = NA, .after = "CBQ885")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ895 = NA, .after = "CBQ890")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ900 = NA, .after = "CBQ895")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ645 = NA, .after = "CBQ900")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ700 = NA, .after = "CBQ645")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, DBQ780 = NA, .after = "CBQ700")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, DBQ750 = NA, .after = "DBQ780")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, DBQ760 = NA, .after = "DBQ750")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, DBQ770 = NA, .after = "DBQ760")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ905 = NA, .after = "DBQ770")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ910 = NA, .after = "CBQ905")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ685 = NA, .after = "DBQ910")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ915 = NA, .after = "DBQ685")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ925 = NA, .after = "CBQ915")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ930 = NA, .after = "CBQ925")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ930 = NA, .after = "CBQ925")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ935 = NA, .after = "CBQ930")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ945 = NA, .after = "CBQ935")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ950 = NA, .after = "CBQ945")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738a = NA, .after = "CBQ950")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738b = NA, .after = "CBQ738a")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738c = NA, .after = "CBQ738b")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738d = NA, .after = "CBQ738c")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738e = NA, .after = "CBQ738d")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738f = NA, .after = "CBQ738e")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738g = NA, .after = "CBQ738f")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738h = NA, .after = "CBQ738g")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738i = NA, .after = "CBQ738h")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738j = NA, .after = "CBQ738i")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738k = NA, .after = "CBQ738j")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ738cd = NA, .after = "CBQ738k")
 
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698a = NA, .after = "CBQ738cd")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698b = NA, .after = "CBQ698a")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698c = NA, .after = "CBQ698b")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698d = NA, .after = "CBQ698c")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698e = NA, .after = "CBQ698d")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698f = NA, .after = "CBQ698e")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698g = NA, .after = "CBQ698f")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698h = NA, .after = "CBQ698g")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698i = NA, .after = "CBQ698h")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ698cd = NA, .after = "CBQ698i")
+
+
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ695a = NA, .after = "CBQ698cd")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ695b = NA, .after = "CBQ695a")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ695c = NA, .after = "CBQ695b")
+
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, CBQ785 = NA, .after = "CBQ695c")
+cbq_adult_09_10 <- add_column(cbq_adult_09_10, WTDRD1 = NA, .after = "CBQ785")
 
 
 
@@ -169,14 +224,122 @@ cbq_adult_09_10 %>%
     CBQ550 = CBQ551
   )
 
+obesity <- merge(x = cbq_09_10, y = cbq_adult_09_10, by = "SEQN", all = TRUE)
 
-df_full <- merge(x = df_full, y = cb_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = hsq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = dbq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = mcq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = paq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = pfq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = whq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = bmx_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = bpq_09_10, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = demo_09_10, by = "SEQN", all = TRUE)
+# -- Consumer Behavior Child --
+# Add Variables
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ536 = NA, .after = "CBQ506")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ541 = NA, .after = "CBQ536")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ551 = NA, .after = "CBQ541")
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ581 = NA, .after = "CBQ550")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ586 = NA, .after = "CBQ581")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ830 = NA, .after = "CBQ586")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ835 = NA, .after = "CBQ830")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ840 = NA, .after = "CBQ835")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ845 = NA, .after = "CBQ840")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ850 = NA, .after = "CBQ845")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ855 = NA, .after = "CBQ850")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ860 = NA, .after = "CBQ855")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ865 = NA, .after = "CBQ860")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ870 = NA, .after = "CBQ865")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ875 = NA, .after = "CBQ870")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ880 = NA, .after = "CBQ875")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ885 = NA, .after = "CBQ880")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ890 = NA, .after = "CBQ885")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ895 = NA, .after = "CBQ890")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ900 = NA, .after = "CBQ895")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ700 = NA, .after = "CBQ645")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBQ780 = NA, .after = "CBQ700")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBQ750 = NA, .after = "DBQ780")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBQ760 = NA, .after = "DBQ750")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBQ770 = NA, .after = "DBQ760")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ905 = NA, .after = "DBQ770")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ910 = NA, .after = "CBQ905")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ685 = NA, .after = "DBQ910")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ915 = NA, .after = "DBQ685")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ925 = NA, .after = "CBQ915")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ930 = NA, .after = "CBQ925")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ935 = NA, .after = "CBQ930")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ945 = NA, .after = "CBQ935")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ950 = NA, .after = "CBQ945")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738a = NA, .after = "CBQ950")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738b = NA, .after = "CBQ738a")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738c = NA, .after = "CBQ738b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738d = NA, .after = "CBQ738c")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738e = NA, .after = "CBQ738d")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738f = NA, .after = "CBQ738e")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738g = NA, .after = "CBQ738f")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738h = NA, .after = "CBQ738g")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738i = NA, .after = "CBQ738h")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738j = NA, .after = "CBQ738i")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738k = NA, .after = "CBQ738j")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ738cd = NA, .after = "CBQ738k")
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698a = NA, .after = "CBQ738cd")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698b = NA, .after = "CBQ698a")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698c = NA, .after = "CBQ698b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698d = NA, .after = "CBQ698c")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698e = NA, .after = "CBQ698d")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698f = NA, .after = "CBQ698e")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698g = NA, .after = "CBQ698f")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698h = NA, .after = "CBQ698g")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698i = NA, .after = "CBQ698h")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ698cd = NA, .after = "CBQ698i")
+
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ695a = NA, .after = "CBQ698cd")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ695b = NA, .after = "CBQ695a")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ695c = NA, .after = "CBQ695b")
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBD930 = NA, .after = "CBQ695b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBD935 = NA, .after = "CBQ695b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBD940 = NA, .after = "CBQ695b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, DBD945 = NA, .after = "CBQ695b")
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBD760 = NA, .after = "CBQ695b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBD765 = NA, .after = "CBQ695b")
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBD770 = NA, .after = "CBQ695b")
+
+cbq_child_09_10 <- add_column(cbq_child_09_10, CBQ785 = NA, .after = "CBQ695c")
+cbq_child_09_10 <- add_column(cbq_child_09_10, WTDRD1 = NA, .after = "CBQ785")
+
+
+
+# Clean Variables
+cbq_child_09_10$CBQ502[cbq_child_09_10$CBQ502 == 7 | cbq_child_09_10$CBQ502 == 9] <- 2
+cbq_child_09_10$CBQ503[cbq_child_09_10$CBQ503 == 7 | cbq_child_09_10$CBQ503 == 9] <- 2
+cbq_child_09_10$CBQ505[cbq_child_09_10$CBQ506 == 7 | cbq_child_09_10$CBQ506 == 9] <- 2
+
+
+obesity <- merge(x = obesity, y = cbq_child_09_10, by = "SEQN", all = TRUE)
+
+# -- Current Health Status -- 
+
+# Clean 
+hsq_09_10$HSD010[hsq_09_10$HSD010 > 5] <- NA
+hsq_09_10$HSQ500[hsq_09_10$HSQ500 == 7 | hsq_09_10$HSQ500 == 9] <- 2
+hsq_09_10$HSQ510[hsq_09_10$HSQ510 == 7 | hsq_09_10$HSQ510 == 9] <- 2
+hsq_09_10$HSQ520[hsq_09_10$HSQ520 == 7 | hsq_09_10$HSQ520 == 9] <- 2
+hsq_09_10$HSQ571[hsq_09_10$HSQ571 == 7 | hsq_09_10$HSQ571 == 9] <- 2
+hsq_09_10$HSQ580[hsq_09_10$HSQ580 > 50] <- NA
+hsq_09_10$HSQ590[hsq_09_10$HSQ590 == 7 | hsq_09_10$HSQ590 == 9] <- 2
+
+# Remove Columns
+# "HSQ480"  "HSQ490"  "HSQ493" "HSQ496"
+hsq_09_10 <- subset(hsq_09_10, select = -c(HSQ480, HSQ490 , HSQ493, HSQ496))
+
+#Merge 
+obesity <- merge(x = obesity, y = hsq_09_10, by = "SEQN", all = TRUE)
+
+# -- Diet Behavior & Nutrition --
+dbq_09_10$DBQ010[dbq_09_10$DBQ010 == 7 | dbq_09_10$DBQ010 == 9] <- 2
+dbq_09_10$DBD030[dbq_09_10$DBD030 >= 777777] <- NA
+dbq_09_10$DBD041[dbq_09_10$DBD041 >= 777777] <- NA
+dbq_09_10$DBD050[dbq_09_10$DBD050 >= 777777] <- NA
+dbq_09_10$DBD055[dbq_09_10$DBD055 >= 777777] <- NA
+dbq_09_10$DBD061[dbq_09_10$DBD061 >= 777777] <- NA
+dbq_09_10$DBQ700[dbq_09_10$DBQ700 == 7 | dbq_09_10$DBQ700 == 9] <- NA
+dbq_09_10$DBQ197[dbq_09_10$DBQ197 == 7 | dbq_09_10$DBQ197 == 9] <- NA
+
+
