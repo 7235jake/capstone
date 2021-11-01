@@ -74,4 +74,7 @@ for (i in seq_along(col_headers)){
 
 colnames(df_full) <- col_headers
 
-colnames(df_full)
+x = colnames(df_full)
+
+save(x, file="1718questions.RData")
+
