@@ -124,13 +124,13 @@ for (i in seq_along(questions)){
 
 # --------- Check if questions exist in 2017-2018 & print ---------
 
-q = "questions in 2017-2018"
+q = load("1718questions.RData")
 
 naquestions = list()
 
-for (i in seq_along("q")){
+for (i in seq_along(q)){
   
-  if (!(colnames(df_full[i]) %in% "q")){
+  if (!(colnames(df_full[i]) %in% q)){
     naquestions <- append(naquestions, colnames(df_full[i]))
   }
 }
@@ -155,13 +155,14 @@ newnaquestions <- naquestions #All questions after the name changes
 gonequestions = list()
 for (i in seq(newnaquestions)){
   
-  if (!(newnaquestions[i] %in% "q")){
+  if (!(newnaquestions[i] %in% q)){
     gonequestions <- append(gonequestions, newnaquestions[i])
   }
 }
 
 # remove all questions from full data set that still don't exist in 2017-2018
-df_full <- subset(df_full, select = -gonequestions)
+df_full <- df_full[-gonequestions]
+
 
 
 
