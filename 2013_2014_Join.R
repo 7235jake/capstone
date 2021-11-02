@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 library(nhanesA)
 library(tibble)
 
@@ -88,5 +87,4 @@ df_full <- merge(x = df_full, y = pfq_13_14, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = whq_13_14, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = bmx_13_14, by = "SEQN", all = TRUE)
 df_full <- merge(x = df_full, y = bpq_13_14, by = "SEQN", all = TRUE)
->>>>>>> e239b64afeb82961558e01256359559c343d2db5
 df_full <- merge(x = df_full, y = demo_13_14, by = "SEQN", all = TRUE)

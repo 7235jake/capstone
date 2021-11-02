@@ -84,13 +84,6 @@ for (i in seq_along(col_headers)){
 
 colnames(df_full) <- col_headers
 
-<<<<<<< HEAD
-x = colnames(df_full)
-
-save(x, file="1718questions.RData")
-
-=======
-
 
 #------- Run script to determine which questions need responses mapped -------------------
 # response_values = list()
@@ -139,4 +132,4 @@ for (i in seq(questions)){
   print(questions[i])
   print(table(df_full[c(questions[i])]))
 }
->>>>>>> e239b64afeb82961558e01256359559c343d2db5
+

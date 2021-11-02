@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 library(nhanesA)
 library(tibble)
 
@@ -168,10 +167,6 @@ df_full1516 <- df_full1516[-gonequestions,]
 
 
 
-=======
-library(nhanesA)
-library(tibble)
-
 #------------ Create translation function -----------
 translate <- function(cols){
   table_names <- c("DIQ_I", "HDL_I","TRIGLY_I", "TCHOL_I", "GLU_I", "HSQ_I", "DBQ_I",  
@@ -337,4 +332,4 @@ df_full <- df_full[-gonequestions]
 
 
 
->>>>>>> e239b64afeb82961558e01256359559c343d2db5
+
