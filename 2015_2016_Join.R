@@ -45,21 +45,21 @@ demo_15_16 <- nhanes("DEMO_I")
 
 
 
-df_full <- merge(x = dia_15_16, y = hdl_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = tri_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = chol_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = glu_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = hsq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = dbq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = mcq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = paq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = pfq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = whq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = bmx_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = bpq_15_16, by = "SEQN", all = TRUE)
-df_full <- merge(x = df_full, y = demo_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = dia_15_16, y = hdl_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = tri_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = chol_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = glu_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = hsq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = dbq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = mcq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = paq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = pfq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = whq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = bmx_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = bpq_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = demo_15_16, by = "SEQN", all = TRUE)
 
-col_headers <- colnames(df_full)
+col_headers <- colnames(df_full1516)
 
 # ----------- Clean Header names --------------
 for (i in seq_along(col_headers)){
@@ -71,19 +71,19 @@ for (i in seq_along(col_headers)){
   }
 }
 
-col_headers <- colnames(df_full)
+col_headers <- colnames(df_full1516)
 
 #------- Run script to determine which questions need responses mapped -------------------
 response_values = list()
  
 # Go through all columns in dataframe
-for (i in seq_along(colnames(df_full))) {
+for (i in seq_along(colnames(df_full1516))) {
  #Translate call for SEQN returns an error so skip over
- if(colnames(df_full[i])=='SEQN'){
+ if(colnames(df_full1516[i])=='SEQN'){
    i = i+1
  }
  # Grab translation of column
- tran <- translate(colnames(df_full[i]))
+ tran <- translate(colnames(df_full1516[i]))
    
  #tryCatch to avoid questions that will throw errors in translation method (ex: skip item)
  responses <- tryCatch(data.frame(tran[1])[,2], error = function(e) {NULL})
@@ -103,12 +103,12 @@ questions <- names(response_values)
 
 for (i in seq_along(questions)){
   #Determine column number corresponding to question identifier
-  col_num <- which(colnames(df_full) == questions[i])
+  col_num <- which(colnames(df_full1516) == questions[i])
   
-  for (row in seq_along(df_full[,col_num])){
+  for (row in seq_along(df_full1516[,col_num])){
     
-    if( df_full[row,col_num] != 1 && df_full[row,col_num] != 2 && !is.na(df_full[row,col_num])){
-      df_full[row,col_num] <- 2
+    if( df_full1516[row,col_num] != 1 && df_full1516[row,col_num] != 2 && !is.na(df_full1516[row,col_num])){
+      df_full1516[row,col_num] <- 2
     }
     
   }
@@ -117,29 +117,30 @@ for (i in seq_along(questions)){
 #---------- Check if responses have changed ------------
 #for (i in seq(questions)){
 #  print(questions[i])
-#  print(table(df_full[c(questions[i])]))
+#  print(table(df_full1516[c(questions[i])]))
 #}
 
 
 
 # --------- Check if questions exist in 2017-2018 & print ---------
 
-q = load("1718questions.RData")
+load("1718questions.RData")
+list_of_qs <- x
+list_of_qs
 
 naquestions = list()
 
-for (i in seq_along(q)){
+for (i in list_of_qs){
   
-  if (!(colnames(df_full[i]) %in% q)){
-    naquestions <- append(naquestions, colnames(df_full[i]))
+  if (!(colnames(df_full1516)[i] %in% list_of_qs)){
+    naquestions <- append(naquestions, colnames(df_full1516[i]))
   }
 }
 
-for (i in seq(naquestions)){
-  print(naquestions[i])
-}
 
+naquestions
 # --------- Change names of necessary columns ---------
+
 
 
 
@@ -155,13 +156,13 @@ newnaquestions <- naquestions #All questions after the name changes
 gonequestions = list()
 for (i in seq(newnaquestions)){
   
-  if (!(newnaquestions[i] %in% q)){
+  if (!(newnaquestions[i] %in% list_of_qs)){
     gonequestions <- append(gonequestions, newnaquestions[i])
   }
 }
 
 # remove all questions from full data set that still don't exist in 2017-2018
-df_full <- df_full[-gonequestions]
+df_full1516 <- df_full1516[-gonequestions,]
 
 
 
