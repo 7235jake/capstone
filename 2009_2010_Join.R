@@ -1,5 +1,6 @@
 library(nhanesA)
 library(tibble)
+library(tidyverse)
 
 #------------ Create translation function -----------
 translate <- function(cols){
@@ -76,8 +77,6 @@ for (i in seq_along(col_headers)){
 }
 
 
-colnames(df_full2009) <- col_headers
-
 #------- Run script to determine which questions need responses mapped -------------------
 response_values2009 = list()
  
@@ -125,9 +124,49 @@ for (i in seq(questions)){
   print(table(df_full2009[c(questions[i])]))
 }
 
+
+
+
 # ----------- Delete columns and Change Names
+
+col_names2017 <- names(df_full)
+remove_cols <- c()
+
+not_in2017 <- col_headers[which(!(col_headers%in%col_names2017))]
+
+changed_names <- c()
+
+# for each value in 2009 dataset
+for (i in 1:length(not_in2017)){
+  # if the column name is the same as a certain value in 
+  sub2009 <- substr(not_in2017[i], 1, nchar(not_in2017[i]) - 1)
+  for (j in (i + 1):length(col_names2017)){
+    sub2017 <- substr(col_names2017[j], 1, nchar(col_names2017[j]) - 1)
+    if (sub2009 == sub2017){
+      # IF the last value is numeric and the subtraction == 1
+      num2009 <- as.numeric(substr(not_in2017[i], nchar(not_in2017[i]), nchar(not_in2017[i])))
+      num2017 <- as.numeric(substr(col_names2017[j], nchar(col_names2017[j]), nchar(col_names2017[j])))
+      subtract <- num2017 - num2009
+      if (subtract == 1){
+        # rename the value
+        names(df_full2009)[i] <- col_names2017[j]
+        changed_names <- append(changed_names, col_names2017[j])
+      }
+    }
+  }
+}
+
+colnames(df_full2009) <- col_headers
+not_in2017again <- col_headers[which(!(col_headers%in%col_names2017))]
+
+df_full2009 <- subset(df_full2009, select = -(not_in2017again))
+df_full2009 <- df_full2009[ , -which(names(df_full2009) %in% not_in2017again)]
+
+#   else, check if the value is in the column
+
+
+
 # -- Delete some columns from the insulin dataset. 
-df_full2009 <- subset(df_full2009, select = -c(WTSAF2YR, LBXGLU, LBXIN, PHAFSTHR, PHAFSTMN))
 
 
 # Rename
