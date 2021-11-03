@@ -2,12 +2,14 @@ library(nhanesA)
 library(tibble)
 library(tidyverse)
 
+load("C:/Users/laure/git/capstone/NHANES_Clean_2017_2018.RData")
+
 #------------ Create translation function -----------
 translate <- function(cols){
   table_names <- c("DIQ_F", "HDL_F","TRIGLY_F", "TCHOL_F", "GLU_F", 
-                   "CBQ_F", "CBQPFA_F", "CBQPFC_F", "HSQ_I", "DBQ_I",  
-                   "MCQ_I", "PAQ_I", "PFQ_I", "WHQ_I", 
-                   "BMX_I", "BPQ_I", "DEMO_I")
+                   "CBQ_F", "CBQPFA_F", "CBQPFC_F", "HSQ_F", "DBQ_F",  
+                   "MCQ_F", "PAQ_F", "PFQ_F", "WHQ_F", 
+                   "BMX_F", "BPQ_F", "DEMO_F")
   trans_table <- list()
   for (i in seq_along(table_names)){
     if(length(nhanesTranslate(table_names[i], colnames = cols)) > 0){
@@ -45,6 +47,9 @@ bpq_09_10 <- nhanes("BPQ_F")
 # Demographic
 demo_09_10 <- nhanes("DEMO_F")
 
+
+
+
 # ------------------- Join all together -------------------------------
 df_full2009 <- merge(x = dia_09_10, y = hdl_09_10, by = "SEQN", all = TRUE)
 df_full2009 <- merge(x = df_full2009, y = tri_09_10, by = "SEQN", all = TRUE)
@@ -63,7 +68,7 @@ df_full2009 <- merge(x = df_full2009, y = bmx_09_10, by = "SEQN", all = TRUE)
 df_full2009 <- merge(x = df_full2009, y = bpq_09_10, by = "SEQN", all = TRUE)
 df_full2009 <- merge(x = df_full2009, y = demo_09_10, by = "SEQN", all = TRUE)
 
-
+col_names2017 <- names(df_full)
 col_headers <- colnames(df_full2009)
 
 # ----------- Clean Header names --------------
@@ -76,6 +81,7 @@ for (i in seq_along(col_headers)){
   }
 }
 
+colnames(df_full2009) <- col_headers
 
 #------- Run script to determine which questions need responses mapped -------------------
 response_values2009 = list()
@@ -166,21 +172,267 @@ df_full2009 <- df_full2009[ , -which(names(df_full2009) %in% not_in2017again)]
 
 
 
-# -- Delete some columns from the insulin dataset. 
+# ---------------------- NEW CODE -------------------
+# --------- Check if questions don't exist in 2017-2018 but in 15-16 ---------
+
+list_of_qs17 <- names(df_full)
+list_of_qs17
+
+cols2009 <- names(df_full2009)
+
+notin17 <- cols2009[which(!(cols2009 %in% list_of_qs17))]
+notin17
+
+# --------- Deleting all necessary columns ---------
+colsToDel <- notin17[c(1:19, 21:25, 28, 30:34, 62:145, 147)]
+
+df_full2009 <- df_full2009[-which(names(df_full2009) %in% colsToDel)]
+
+# --------- Changing all necessary columns ---------
+
+colsToChange = notin17[-c(2, 24:53, 62:145, 147)]
+
+whatToChangeTo = c("CBQ506", "CBQ536", "CBQ541", "CBQ546", "CBQ551", 
+                   "CBQ553", "CBQ581", "CBQ586", "CBQ591", "MCD180A", "MCD180N",
+                   "MCD180B", "MCD180C", "MCD180D", "MCD180E", "MCD180F", "MCD180G",
+                   "MCD180M", "MCD180K", "MCD180L", "MCD240A", "MCQ366A", "MCQ366B",   
+                   "MCQ366C", "MCQ366D", "MCQ371A", "MCQ371B", "MCQ371C", "MCQ371D",
+                   "DMDHRAGZ", "DMDHREDZ", "DMDHRMAZ", "DMDHSEDZ")
+# Delete
+delete_cols <- c("PHAFSTHR", 
+                 "PHAFSTMN", 
+                 "CBD010",
+                 "CBQ020",  
+                 "CBQ030",  
+                 "CBQ040",
+                 "CBQ050" ,
+                 "CBQ060",
+                 "CBD070",
+                 "CBD090",
+                 "CBQ140",
+                 "CBD150",
+                 "CBD160",
+                 "CBD170",
+                 "CBD180",
+                 "CBQ190",
+                 "CBQ510",
+                 "CBQ515",
+                 "CBQ520",
+                 "CBQ525", 
+                 "CBQ530",
+                 "CBQ550",
+                 "CBQ555",
+                 "CBQ560",
+                 "CBQ565",
+                 "CBQ570",
+                 "CBQ575",
+                 "CBQ580",
+                 "CBQ585",
+                 "CBQ590",
+                 "CBQ595",
+                 "CBQ600",
+                 "CBD620",
+                 "CBD625",
+                 "CBD630",
+                 "CBD635",
+                 "CBD637",
+                 "CBD640",
+                 "DBQ890",
+                 "CBQ655",
+                 "CBQ660",
+                 "CBQ665",
+                 "CBQ670",
+                 "CBQ675",
+                 "CBQ680",
+                 "CBD710",
+                 "CBD715",
+                 "CBD720",
+                 "CBD725",
+                 "CBD730",
+                 "CBD735",
+                 "CBD740",
+                 "CBQ790",
+                 "CBQ795",
+                 "CBQ800",
+                 "CBQ805",
+                 "CBQ810",
+                 "CBQ520",
+                 "CBQ525",
+                 "CBQ530",
+                 "CBQ555",
+                 "CBQ560",
+                 "CBQ565",
+                 "CBQ570",
+                 "CBQ575",
+                 "CBQ580",
+                 "CBQ585",
+                 "CBQ590",
+                 "CBQ600",
+                 "CBQ605",
+                 "CBQ610",
+                 "DBQ890",
+                 "CBQ660",
+                 "CBQ665",
+                 "CBQ670",
+                 "CBQ675",
+                 "CBQ680",
+                 "CBD710",
+                 "CBD715",
+                 "CBD720",
+                 "CBD725",
+                 "CBD730",
+                 "CBD735",
+                 "CBD740",
+                 "CBQ790",
+                 "CBQ795",
+                 "CBQ800",
+                 "CBQ805",
+                 "CBQ810",
+                 "CBQ815",
+                 "CBQ820",
+                 "CBQ825",
+                 "HSQ490",
+                 "HSQ493",
+                 "HSQ470",
+                 "HSQ480",  
+                 "HSQ496",
+                 "CBQ550",
+                 "DBQ915",
+                 "DBQ920",
+                 "DBQ925A",
+                 "DBQ925B",
+                 "DBQ925C",
+                 "DBQ925D",
+                 "DBQ925E",
+                 "DBQ925F",
+                 "DBQ925G",
+                 "DBQ925H",
+                 "DBQ925I",
+                 "DBQ925J",
+                 "PAQ706",
+                 "PAD590",
+                 "PAD600","PAAQUEX",  "WHD045",   "WHQ270" ,  "WHQ280A"  ,"WHQ280B" , "WHQ280C" 
+                 ,"WHQ280D" , "WHQ280E" , "WHQ090"  , "WHD100A" , "WHD100B" , "WHD100C" ,
+                 "WHD100D" , "WHD100E",  "WHD100F" , "WHD100G",  "WHD100H" , "WHD100I", 
+                 "WHD100J" , "WHD100K" , "WHD100L" , "WHD100M"  ,"WHD100N" , "WHD100O", 
+                 "WHD100P" , "WHD100Q" , "WHD100R" , "WHD100S" , "WHD100T"  ,"WHQ210"  ,
+                 "WHD220",
+                 "BMXTRI",
+                 "BMXSUB",
+                 "BMISUB" ,
+                 "BPQ057" ,
+                 "BPQ056" ,  "BPD058" ,  "BPQ059" ,  "BPQ090A",  "BPQ090B" , "BPQ090C" 
+                 ,"BPQ100A" , "BPQ100B",  "BPQ100C"
+                 ,"DMDSCHOL",
+                 "CBQ515", "MCQ070", "MCQ082", "MCQ086", "MCQ140",
+                 "MCQ240BB", "MCQ240AA", "MCQ240CC")
+   
 
 
-# Rename
-df_full2009 %>% 
+# Keep / Change
+
+library(tidyverse)
+
+df_full2009 %>%
   rename(
-    CBQ505 = CBQ506,
-    CBQ535 = CBQ536,
-    CBQ540 = CBQ541,
-    CBQ550 = CBQ551
+    CBD111 = CBD110,
+    CBD121 = CBD120,
+    CBD131 = CBD130,     
+    CBQ506 = CBQ505,
+    CBQ535 = CBQ535,
+    CBQ541 = CBQ540,
+    CBQ546 = CBQ545, 
+    CBQ606 = CBQ605,
+    CBQ611 = CBQ610,   
+    #CBQ505  
+    CBQ511 = CBQ510,
+    #CBQ915 = CBQ515,
+    CBQ536 = CBQ535,
+    CBQ541 = CBQ540,
+    CBQ945 = CBQ545,
+    CBQ596 = CBQ595,   
+    AGQ030 = MCQ051,
+    #MCQ070
+    #MCQ082  
+    # MCQ086
+    # MCQ140
+    MCD180A = MCQ180A,
+    MCQ195 = MCQ191,
+    MCD180N = MCQ180N,
+    MCD180B = MCQ180B,
+    MCD180C = MCQ180C,
+    MCD180D = MCQ180D,
+    MCD180E = MCQ180E,
+    MCD180F = MCQ180F,
+    MCD180G = MCQ180G,
+    MCD180M = MCQ180M,
+    MCD180K = MCQ180K,
+    MCD180L = MCQ180L,
+    MCD240A = MCQ240A, 
+    MCD240B = MCQ240B, 
+    MCD240C = MCQ240C,
+    MCD240D
+    MCQ240DD
+    MCQ240DK
+    MCQ240E 
+    MCQ240F 
+    MCQ240G
+    MCQ240H 
+    MCQ240I 
+    MCQ240J 
+    MCQ240K 
+    MCQ240L
+    MCQ240M
+    MCQ240N
+    MCQ240O 
+    MCQ240P 
+    MCQ240Q 
+    MCQ240R 
+    MCQ240S 
+    MCQ240T 
+    MCQ240U 
+    MCQ240V 
+    MCQ240W 
+    MCQ240X
+    MCQ240Y  
+    MCQ240Z  
+    RIDAGEEX 
+    DMQMILIT
+    DMDBORN2
+    DMDHRAGE 
+    DMDHRBR2 
+    DMDHREDU 
+    DMDHRMAR 
+    DMDHSEDU
+    AIALANG 
+    DMQMILIZ
+    DMDBORN2
+    DMDSCHOL
+    DMDHRAGE
+    DMDHRBR2
+    DMDHREDU
+    DMDHRMAR
+    DMDHSEDU
+    
   )
 
 
-# Remove Columns
-# "HSQ480"  "HSQ490"  "HSQ493" "HSQ496"
-df_full2009 <- subset(df_full2009, select = -c(HSQ480, HSQ490 , HSQ493, HSQ496))
+
+
+count = 1
+for(i in 1:length(df_full1516))
+{
+  if(names(df_full1516[i]) %in% colsToChange)
+  {
+    colnames(df_full1516)[i] <- whatToChangeTo[count]  
+    count <- count + 1
+  }
+}
+
+df_full1516["Year"] <- rep("2015-2016", length(df_full1516[1]))
+
+save(df_full1516, file = "NHANES_Clean_2015_2016.RData")
+
+
 
 
