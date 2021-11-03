@@ -3,7 +3,7 @@ library(tibble)
 
 #------------ Create translation function -----------
 translate <- function(cols){
-  table_names <- c("DIQ_H", "HDL_H","TRIGLY_H", "TCHOL_H", "GLU_H", "HSQ_H", "DBQ_H",  
+  table_names <- c("DIQ_H", "HDL_H","TRIGLY_H", "TCHOL_H", "GLU_H", "CBQ_H", "HSQ_H", "DBQ_H",  
                    "MCQ_H", "PAQ_H", "PFQ_H", "WHQ_H", 
                    "BMX_H", "BPQ_H", "DEMO_H")
   trans_table <- list()
@@ -24,6 +24,7 @@ chol_13_14 <- nhanes("TCHOL_H")
 glu_13_14 <- nhanes("GLU_H")
 
 # Obesity
+cbq_13_14 <- nhanes("CBQ_H")
 hsq_13_14 <- nhanes("HSQ_H")
 dbq_13_14 <- nhanes("DBQ_H")
 mcq_13_14 <- nhanes("MCQ_H")
@@ -46,6 +47,7 @@ df_full1314 <- merge(x = dia_13_14, y = hdl_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = tri_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = chol_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = glu_13_14, by = "SEQN", all = TRUE)
+df_full1314 <- merge(x = df_full1314, y = cbq_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = hsq_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = dbq_13_14, by = "SEQN", all = TRUE)
 df_full1314 <- merge(x = df_full1314, y = mcq_13_14, by = "SEQN", all = TRUE)
@@ -133,15 +135,17 @@ notin17 <- col_head[which(!(col_head %in% list_of_qs17))]
 notin17
 
 # --------- Deleting all necessary columns ---------
-colsToDel <- notin17[c(2, 24:53, 62:145, 147)]
+colsToDel <- notin17[c(2:4, 19:23, 36:65, 74:163, 165)]
 
 df_full1314 <- df_full1314[-which(names(df_full1314) %in% colsToDel)]
 
 # --------- Changing all necessary columns ---------
 
-colsToChange = notin17[-c(2, 24:53, 62:145, 147)]
+colsToChange = notin17[-c(2:4, 19:23, 36:65, 74:163, 165)]
+colsToChange
 
-whatToChangeTo = c("WTSAF2YR", "CBQ506", "CBQ536", "CBQ541", "CBQ546", "CBQ551", 
+whatToChangeTo = c("WTSAF2YR", "CBD071", "CBD091", "CBD111", "CBD121", "CBD131", 
+                   "CBQ506", "CBQ536", "CBQ541", "CBQ546", "CBQ551", 
                    "CBQ553", "CBQ581", "CBQ586", "CBQ591", "MCD180A", "MCD180N",
                    "MCD180B", "MCD180C", "MCD180D", "MCD180E", "MCD180F", "MCD180G",
                    "MCD180M", "MCD180K", "MCD180L", "MCD240A", "MCQ366A", "MCQ366B",   
