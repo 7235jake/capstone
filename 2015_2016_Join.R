@@ -3,7 +3,7 @@ library(tibble)
 
 #------------ Create translation function -----------
 translate <- function(cols){
-  table_names <- c("DIQ_I", "HDL_I","TRIGLY_I", "TCHOL_I", "GLU_I", "HSQ_I", "DBQ_I",  
+  table_names <- c("DIQ_I", "HDL_I","TRIGLY_I", "TCHOL_I", "GLU_I", "CBQ_I", "HSQ_I", "DBQ_I",  
                    "MCQ_I", "PAQ_I", "PFQ_I", "WHQ_I", 
                    "BMX_I", "BPQ_I", "DEMO_I")
   trans_table <- list()
@@ -24,6 +24,7 @@ chol_15_16 <- nhanes("TCHOL_I")
 glu_15_16 <- nhanes("GLU_I")
 
 # Obesity
+cbq_15_16 <- nhanes("CBQ_I")
 hsq_15_16 <- nhanes("HSQ_I")
 dbq_15_16 <- nhanes("DBQ_I")
 mcq_15_16 <- nhanes("MCQ_I")
@@ -49,6 +50,7 @@ df_full1516 <- merge(x = dia_15_16, y = hdl_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = tri_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = chol_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = glu_15_16, by = "SEQN", all = TRUE)
+df_full1516 <- merge(x = df_full1516, y = cbq_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = hsq_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = dbq_15_16, by = "SEQN", all = TRUE)
 df_full1516 <- merge(x = df_full1516, y = mcq_15_16, by = "SEQN", all = TRUE)
