@@ -161,6 +161,7 @@ for(i in 1:length(df_full1516))
   }
 }
 
+df_full1516["Year"] <- rep("2015-2016", length(df_full1516[1]))
 
 save(df_full1516, file = "NHANES_Clean_2015_2016.RData")
 
