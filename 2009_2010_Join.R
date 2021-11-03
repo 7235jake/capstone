@@ -131,74 +131,16 @@ for (i in seq(questions)){
 }
 
 
-
-
-# ----------- Delete columns and Change Names
-
-col_names2017 <- names(df_full)
-remove_cols <- c()
-
-not_in2017 <- col_headers[which(!(col_headers%in%col_names2017))]
-
-changed_names <- c()
-
-# for each value in 2009 dataset
-for (i in 1:length(not_in2017)){
-  # if the column name is the same as a certain value in 
-  sub2009 <- substr(not_in2017[i], 1, nchar(not_in2017[i]) - 1)
-  for (j in (i + 1):length(col_names2017)){
-    sub2017 <- substr(col_names2017[j], 1, nchar(col_names2017[j]) - 1)
-    if (sub2009 == sub2017){
-      # IF the last value is numeric and the subtraction == 1
-      num2009 <- as.numeric(substr(not_in2017[i], nchar(not_in2017[i]), nchar(not_in2017[i])))
-      num2017 <- as.numeric(substr(col_names2017[j], nchar(col_names2017[j]), nchar(col_names2017[j])))
-      subtract <- num2017 - num2009
-      if (subtract == 1){
-        # rename the value
-        names(df_full2009)[i] <- col_names2017[j]
-        changed_names <- append(changed_names, col_names2017[j])
-      }
-    }
-  }
-}
-
-colnames(df_full2009) <- col_headers
-not_in2017again <- col_headers[which(!(col_headers%in%col_names2017))]
-
-df_full2009 <- subset(df_full2009, select = -(not_in2017again))
-df_full2009 <- df_full2009[ , -which(names(df_full2009) %in% not_in2017again)]
-
-#   else, check if the value is in the column
-
-
-
-# ---------------------- NEW CODE -------------------
 # --------- Check if questions don't exist in 2017-2018 but in 15-16 ---------
 
 list_of_qs17 <- names(df_full)
-list_of_qs17
 
 cols2009 <- names(df_full2009)
 
 notin17 <- cols2009[which(!(cols2009 %in% list_of_qs17))]
-notin17
 
 # --------- Deleting all necessary columns ---------
-colsToDel <- notin17[c(1:19, 21:25, 28, 30:34, 62:145, 147)]
 
-df_full2009 <- df_full2009[-which(names(df_full2009) %in% colsToDel)]
-
-# --------- Changing all necessary columns ---------
-
-colsToChange = notin17[-c(2, 24:53, 62:145, 147)]
-
-whatToChangeTo = c("CBQ506", "CBQ536", "CBQ541", "CBQ546", "CBQ551", 
-                   "CBQ553", "CBQ581", "CBQ586", "CBQ591", "MCD180A", "MCD180N",
-                   "MCD180B", "MCD180C", "MCD180D", "MCD180E", "MCD180F", "MCD180G",
-                   "MCD180M", "MCD180K", "MCD180L", "MCD240A", "MCQ366A", "MCQ366B",   
-                   "MCQ366C", "MCQ366D", "MCQ371A", "MCQ371B", "MCQ371C", "MCQ371D",
-                   "DMDHRAGZ", "DMDHREDZ", "DMDHRMAZ", "DMDHSEDZ")
-# Delete
 delete_cols <- c("PHAFSTHR", 
                  "PHAFSTMN", 
                  "CBD010",
@@ -215,7 +157,6 @@ delete_cols <- c("PHAFSTHR",
                  "CBD170",
                  "CBD180",
                  "CBQ190",
-                 "CBQ510",
                  "CBQ515",
                  "CBQ520",
                  "CBQ525", 
@@ -229,7 +170,7 @@ delete_cols <- c("PHAFSTHR",
                  "CBQ580",
                  "CBQ585",
                  "CBQ590",
-                 "CBQ595",
+                 #"CBQ595",
                  "CBQ600",
                  "CBD620",
                  "CBD625",
@@ -268,8 +209,7 @@ delete_cols <- c("PHAFSTHR",
                  "CBQ585",
                  "CBQ590",
                  "CBQ600",
-                 "CBQ605",
-                 "CBQ610",
+                 #"CBQ610",
                  "DBQ890",
                  "CBQ660",
                  "CBQ665",
@@ -325,15 +265,38 @@ delete_cols <- c("PHAFSTHR",
                  ,"BPQ100A" , "BPQ100B",  "BPQ100C"
                  ,"DMDSCHOL",
                  "CBQ515", "MCQ070", "MCQ082", "MCQ086", "MCQ140",
-                 "MCQ240BB", "MCQ240AA", "MCQ240CC")
+                 "MCQ240BB", "MCQ240AA", "MCQ240CC","MCQ240DD", "MCQ240DK",
+                 "MCD240D",
+                 "MCQ240E", 
+                 "MCQ240F", 
+                 "MCQ240G",
+                 "MCQ240H", 
+                 "MCQ240I", 
+                 "MCQ240J", 
+                 "MCQ240K", 
+                 "MCQ240L",
+                 "MCQ240M",
+                 "MCQ240N",
+                 "MCQ240O", 
+                 "MCQ240P", 
+                 "MCQ240Q", 
+                 "MCQ240R", 
+                 "MCQ240S", 
+                 "MCQ240T", 
+                 "MCQ240U", 
+                 "MCQ240V", 
+                 "MCQ240W", 
+                 "MCQ240X",
+                 "MCQ240Y",  
+                 "MCQ240Z",
+                 "DMDHRBR2",
+                 "DMDSCHOL")
    
+df_full2009deleted <- df_full2009[-which(names(df_full2009) %in% delete_cols)]
 
+# -------------Keep / Change------------------------
 
-# Keep / Change
-
-library(tidyverse)
-
-df_full2009 %>%
+df_full2009deleted <- df_full2009deleted %>%
   rename(
     CBD111 = CBD110,
     CBD121 = CBD120,
@@ -344,18 +307,12 @@ df_full2009 %>%
     CBQ546 = CBQ545, 
     CBQ606 = CBQ605,
     CBQ611 = CBQ610,   
-    #CBQ505  
     CBQ511 = CBQ510,
-    #CBQ915 = CBQ515,
     CBQ536 = CBQ535,
     CBQ541 = CBQ540,
     CBQ945 = CBQ545,
     CBQ596 = CBQ595,   
     AGQ030 = MCQ051,
-    #MCQ070
-    #MCQ082  
-    # MCQ086
-    # MCQ140
     MCD180A = MCQ180A,
     MCQ195 = MCQ191,
     MCD180N = MCQ180N,
@@ -371,67 +328,26 @@ df_full2009 %>%
     MCD240A = MCQ240A, 
     MCD240B = MCQ240B, 
     MCD240C = MCQ240C,
-    MCD240D
-    MCQ240DD
-    MCQ240DK
-    MCQ240E 
-    MCQ240F 
-    MCQ240G
-    MCQ240H 
-    MCQ240I 
-    MCQ240J 
-    MCQ240K 
-    MCQ240L
-    MCQ240M
-    MCQ240N
-    MCQ240O 
-    MCQ240P 
-    MCQ240Q 
-    MCQ240R 
-    MCQ240S 
-    MCQ240T 
-    MCQ240U 
-    MCQ240V 
-    MCQ240W 
-    MCQ240X
-    MCQ240Y  
-    MCQ240Z  
-    RIDAGEEX 
-    DMQMILIT
-    DMDBORN2
-    DMDHRAGE 
-    DMDHRBR2 
-    DMDHREDU 
-    DMDHRMAR 
-    DMDHSEDU
-    AIALANG 
-    DMQMILIZ
-    DMDBORN2
-    DMDSCHOL
-    DMDHRAGE
-    DMDHRBR2
-    DMDHREDU
-    DMDHRMAR
-    DMDHSEDU
-    
+    RIDEXAGM =  RIDAGEEX,
+    DMQMILIZ = DMQMILIT,
+    DMDBORN4 = DMDBORN2,
+    DMDHRAGZ = DMDHRAGE,
+    DMDHREDZ = DMDHREDU,
+    DMDHRMAZ = DMDHRMAR,
+    DMDHSEDZ = DMDHSEDU,
+    AIALANGA = AIALANG, 
   )
 
+# Check 2
+cols2009 <- names(df_full2009deleted)
+notin17pt2 <- cols2009[which(!(cols2009 %in% list_of_qs17))]
+
+df_full2009deleted <- df_full2009deleted[-which(names(df_full2009deleted) %in% notin17pt2)]
 
 
+df_full2009 <- df_full2009deleted
 
-count = 1
-for(i in 1:length(df_full1516))
-{
-  if(names(df_full1516[i]) %in% colsToChange)
-  {
-    colnames(df_full1516)[i] <- whatToChangeTo[count]  
-    count <- count + 1
-  }
-}
-
-df_full1516["Year"] <- rep("2015-2016", length(df_full1516[1]))
-
-save(df_full1516, file = "NHANES_Clean_2015_2016.RData")
+save(df_full2009, file = "NHANES_Clean_2009_2010.RData")
 
 
 
