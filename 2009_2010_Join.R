@@ -347,6 +347,11 @@ df_full2009deleted <- df_full2009deleted[-which(names(df_full2009deleted) %in% n
 
 df_full2009 <- df_full2009deleted
 
+# Add the year column
+
+df_full2009["Year"] <- rep("2009-2010", length(df_full2009[1]))
+
+
 save(df_full2009, file = "NHANES_Clean_2009_2010.RData")
 
 
