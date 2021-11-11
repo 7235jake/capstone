@@ -145,12 +145,131 @@ for (x in seq_along(colnames(df_full))){
 #Remove BMI questions with "could not contain" responses for body measurements
 df_full <- df_full %>% select(-unlist(single_level_questions[1:5]))
 
-#handle questions with .1 first
+#list of single level questions
 single_level_questions <- (unlist(single_level_questions))
 single_level_questions <- single_level_questions[(single_level_questions %in% colnames(df_full))]
+#handle questions with .1 first
+unique_single_level <- unique(str_sub(single_level_questions, start = 1, end = 6))
 
 
 
+#CBQ695_(.1)
 
+cbq695_1 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[1]] %>% .[str_sub(., start = -2, end = -1)==".1"]
+#Combine columns together with unite
+df_full <- df_full %>% unite(col = "CBQ695.1", all_of(cbq695_1), na.rm = TRUE)
+#Put back in NAS
+#df_full$CBQ695.1 <- df_full %>% replace_na(replace = list(CBQ695.1 = c("")))
+table(df_full$CBQ695.1)
+df_full$CBQ695.1
+
+
+cbq695 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[1]] %>% .[str_sub(., start = -2, end = -1)!=".1"]
+df_full <- df_full %>% unite(col = "CBQ695", all_of(cbq695), na.rm = TRUE)
+select(df_full,CBQ695)
+#df_full$CBQ695 <- df_full %>% replace_na(replace = list(CBQ695 = c("")))
+table(df_full$CBQ695)
+df_full$CBQ695
+
+
+
+#CBQ698_(.1)
+cbq698_1 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[2]] %>% .[str_sub(., start = -2, end = -1)==".1"]
+df_full <- df_full %>% unite(col = "CBQ698.1", all_of(cbq698_1), na.rm = TRUE)
+#df_full$CBQ698.1 <- df_full %>% replace_na(replace = list(CBQ098.1 = c("")))
+table(df_full$CBQ698.1)
+df_full$CBQ698.1
+
+cbq698 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[2]] %>% .[str_sub(., start = -2, end = -1)!=".1"]
+df_full <- df_full %>% unite(col = "CBQ698", all_of(cbq698), na.rm = TRUE)
+#df_full$CBQ698 <- df_full %>% replace_na(replace = list(CBQ698 = c("")))
+table(df_full$CBQ698)
+df_full$CBQ698
+
+
+#CBQ738_(.1)
+cbq738_1 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[3]] %>% .[str_sub(., start = -2, end = -1)==".1"]
+df_full <- df_full %>% unite(col = "CBQ738.1", all_of(cbq738_1), na.rm = TRUE)
+table(df_full$CBQ738.1)
+df_full$CBQ738.1
+
+cbq738 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[3]] %>% .[str_sub(., start = -2, end = -1)!=".1"]
+df_full <- df_full %>% unite(col = "CBQ738", all_of(cbq738), na.rm = TRUE)
+table(df_full$CBQ738)
+df_full$CBQ738
+
+
+#DBQ073
+dbq073 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[4]]
+df_full <- df_full %>% unite(col = "DBQ073", all_of(dbq073), na.rm = TRUE)
+table(df_full$DBQ073)
+df_full$DBQ073
+
+
+#DBQ223
+dbq223 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[5]]
+df_full <- df_full %>% unite(col = "DBQ223", all_of(dbq223), na.rm = TRUE)
+table(df_full$DBQ223)
+df_full$DBQ223
+
+#DIQ175
+diq175 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[6]]
+df_full <- df_full %>% unite(col = "DIQ175", all_of(diq175), na.rm = TRUE)
+table(df_full$DIQ175)
+df_full$DIQ175
+
+#MCQ230
+mcq230 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[7]]
+df_full <- df_full %>% unite(col = "MCQ230", all_of(mcq230), na.rm = TRUE)
+table(df_full$MCQ230)
+df_full$MCQ230
+
+#MCQ510
+mcq510 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[8]]
+df_full <- df_full %>% unite(col = "MCQ510", all_of(mcq510), na.rm = TRUE)
+table(df_full$MCQ510)
+df_full$MCQ510
+
+#WHD080
+whd080 <- colnames(df_full) %>% .[str_sub(., start=1, end=6) == unique_single_level[9]]
+df_full <- df_full %>% unite(col = "WHD080", all_of(whd080), na.rm = TRUE)
+table(df_full$WHD080)
+df_full$WHD080
+
+
+#Now we have to map our responses again for combined valeues (ex: 1_2_3)
+#Store new column names
+merged_cols <- c("CBQ695.1", "CBQ695",  "CBQ698.1", "CBQ698", "CBQ738.1", "CBQ738", "DBQ073", "DBQ223", "DIQ175", "MCQ230", "MCQ510", "WHD080")
+df_merged <- df_full[,merged_cols]
+
+for( col in seq_along(df_merged)){
+  
+  for(row in seq(dim(df_merged)[1])){
+    # if underscore in response
+    if(unlist(gregexpr("_", df_merged[row,col]))[1] != -1){
+      
+      value = df_merged[row,col]
+      #get index of underscore
+      index = str_locate(pattern = "_",df_merged[row,col])[1,1]
+      #Get rid of values after underscore
+      new_value <- str_sub(value, start = 1, end = index-1 )
+      #if our new value is 99 change to empty string
+      if(new_value == "99" || new_value =="77"){
+        df_merged[row,col] <- ""
+      }
+      else {
+        df_merged[row,col] <- new_value
+        
+      }
+    }
+    else if( df_merged[row,col]=="99" || df_merged[row,col]=="77"){
+      df_merged[row,col] <- ""
+    }
+    
+  }
+  df_full[,merged_cols[col]] <- as.factor(df_merged[,col])
+  print((table(df_merged[,col])))
+  
+}
 
 #save(df_full, file = "NHANESCleanFactors.RData")
