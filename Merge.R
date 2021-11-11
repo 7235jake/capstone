@@ -15,20 +15,20 @@ load("NHANES_Clean_2017_2018.RData")
 # 2017 - 2018
 df_17_18 <- as.data.frame(df_full)
 df_17_18["Year"] = rep("2017-2018", length(df_17_18[1]))
-save(df_17_18, file = "NHANES_Clean_2017_2018.RData")
+#save(df_17_18, file = "NHANES_Clean_2017_2018.RData")
 
 
 # 2015 - 2016
 # Delete CBQ546, CBQ553, CBQ591
 df_15_16 <- as.data.frame(df_full1516)
 df_15_16 <- select(df_15_16, -c("CBQ546", "CBQ553", "CBQ591"))
-save(df_15_16, file = "NHANES_Clean_2015_2016.RData")
+#save(df_15_16, file = "NHANES_Clean_2015_2016.RData")
 
 # 2013 - 2014
 # Delete CBQ546, CBQ553, CBQ591
 df_13_14 <- as.data.frame(df_full1314)
 df_13_14 <- select(df_13_14,-c("CBQ546", "CBQ553", "CBQ591"))
-save(df_13_14, file = "NHANES_Clean_2013_2014.RData")
+#save(df_13_14, file = "NHANES_Clean_2013_2014.RData")
 
 # 2011 - 2012
 # Delete MCQ051, WHQ030M, WHQ500, WHQ520
@@ -39,7 +39,7 @@ df_11_12 <- select(df_11_12, -c("MCQ051", "WHQ030M", "WHQ500", "WHQ520"))
 
 names(df_11_12)[names(df_11_12) == "CBD120"] <- "CBD121"
 
-save(df_11_12, file = "NHANES_Clean_2011_2012.RData")
+#save(df_11_12, file = "NHANES_Clean_2011_2012.RData")
 
 # 2009 - 2010
 df_09_10 <- as.data.frame(df_full2009)
@@ -59,6 +59,10 @@ setdiff(c, a)
 setdiff(d, a)
 setdiff(e, a)
 
+table(df_13_14$Year)
+table(df_15_16$Year)
+
+
 # ------- Getting Rid of questions that aren't in 2017-2018
 
 #df_15_16 <- df_15_16[c(names_15_16)]
@@ -72,6 +76,8 @@ name_1718_1516 <- setdiff(a, b)
 name_1718_1314 <- setdiff(a, c)
 name_1718_1112 <- setdiff(a, d)
 name_1718_0910 <- setdiff(a, e)
+
+
 
 
 # ------- Adding Cols Not in Each year and filling them with NA -------
@@ -95,6 +101,8 @@ df_13_14 <- cbind(df_13_14, null_13_14)
 df_11_12 <- cbind(df_11_12, null_11_12)
 df_09_10 <- cbind(df_09_10, null_09_10)
 
+setdiff(colnames(df_15_16), colnames(df_13_14))
+
 # ------- Order names and combine all years into one Data frame -------
 
 a <- colnames(df_17_18)
@@ -112,7 +120,9 @@ df_09_10 <- df_09_10[ , order(names(df_09_10))]
 
 df_full <- rbind(df_17_18, df_15_16)
 df_full <- rbind(df_full, df_13_14)
-df_full <- rbind(df_17_18, df_11_12)
+df_full <- rbind(df_full, df_11_12)
 df_full <- rbind(df_full, df_09_10)
+
+table(df_full$Year)
 
 save(df_full, file = "NHANES_Clean.RData")

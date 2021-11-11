@@ -1,0 +1,108 @@
+---
+title: "Quality Analysis"
+author: "Lauren Bradley"
+date: "11/9/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+ 
+Import data
+
+```{r}
+load("C:/Users/laure/git/capstone/NHANES_Clean.RData")
+
+```
+
+
+Cleaning added according to quality analysis:
+
+```{r}
+df_full$DID040[df_full$DID040 == 666 | df_full$DID040 == 999] <- NA
+#df_full$DIQ010[df_full$DIQ010 == 3 | df_full$DIQ010 == 7 | df_full$DIQ010 == 9] <- 2
+
+```
+
+
+
+Regression (age vs age when got diabetes)
+
+```{r}
+mod <- lm(DID040 ~ RIDAGEYR,data = df_full)
+plot(df_full$RIDAGEYR, df_full$DID040)
+abline(mod)
+```
+
+
+```{r}
+par(mfrow=c(1,3))
+plot(mod$fitted.values, mod$residuals, main = "Residual Scatter Plot")
+abline(h = 0)
+
+qqnorm(mod$residuals)
+
+hist(mod$residuals)
+```
+
+
+
+```{r}
+mod <- lm(DID040 ~ RIDAGEYR,data = df_full)
+plot(df_full$RIDAGEYR, df_full$DID040)
+abline(mod)
+```
+
+
+# Try to make a line plot with proportions of whether someone says yes or noo
+
+```{r}
+
+```
+
+
+
+# Potential target variables:
+DIQ010
+
+names with one table value
+
+```{r}
+one_val <- c()
+for (col_name in names(df_sub)){
+  if (length(table(df_sub[col_name])) == 1){
+    one_val <- append(one_val, col_name)
+  }
+}
+```
+
+
+
+```{r}
+df_sub <- df_full[,-which(names(df_full) %in% one_val)]
+
+
+df_sub$DIQ010 <- as.factor(df_sub$DIQ010)
+null_model <- glm(DIQ010 ~ 1, data = df_sub, family = "binomial")
+full_model <- glm(DIQ010 ~ ., data = df_sub, family = "binomial")
+model_step_AIC <- step(null_model,
+                       scope = list(lower = null_model, upper = full_model),
+                       direction="both", k = 2, trace = 0)
+summary(model_step_AIC)
+```
+
+# What I think is wrong
+
+- The 1 and 2s needs to be a factor type
+- there are still 3/9/7s in the data sets for some reason
+
+# Things that can be nice for quality analysis
+
+- proportions and compare by year
+
+
+# Instead of cleaning, try to combine the variables that are the same at the front. 
+
+
