@@ -9,12 +9,54 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
- 
+
+#Focus Demographics. 
+
+Demographics
+Sex/Gender
+Age
+Race/Ethnicity
+Obesity
+
+
+Chronic diseases
+Type 2 diabetes mellitus/Metabolic syndrome
+Atherosclerosis
+Hypertension
+Obesity
+
+
+Markers
+Type 2 diabetes mellitus markers
+Glycosylated hemoglobin (Hba1c)
+Oral glucose tolerance test
+Adiponectin
+Glycated albumin
+Fructosamine
+
+Metabolic syndrome markers
+Waist circumference: >35 inches for females; >40 inches for males
+Body mass index: >30 kg/m2 for females and males
+Fasting plasma glucose: >100 mg/dL or previously diagnosed type 2 diabetes mellitus
+Elevated Triglycerides: >150 mg/dL for females and males
+Decreased high density lipoprotein cholesterol (HDL-C): <50 mg/dL for females, <40 mg/dL for males 
+Hypertension: Systolic blood pressure: ≥130 mm Hg, Diastolic blood pressure: ≥85 mm Hg
+
+Cardiovascular disease markers
+Total cholesterol (TC)
+High density lipoprotein cholesterol (HDL-C)
+Low density lipoprotein cholesterol (LDL-C)
+Triglycerides (TG)
+C-reactive Protein (CRP)
+Interleukin-6 (IL-6)
+
+
+
 Import data
 
 ```{r}
-load("C:/Users/laure/git/capstone/NHANES_Clean.RData")
-
+load("C:/Users/laure/git/capstone/NHANESCleanFactors.RData")
+#str(df_full)
 ```
 
 
@@ -22,11 +64,29 @@ Cleaning added according to quality analysis:
 
 ```{r}
 df_full$DID040[df_full$DID040 == 666 | df_full$DID040 == 999] <- NA
-#df_full$DIQ010[df_full$DIQ010 == 3 | df_full$DIQ010 == 7 | df_full$DIQ010 == 9] <- 2
+df_full$DIQ010[df_full$DIQ010 == 3 | df_full$DIQ010 == 7 | df_full$DIQ010 == 9] <- 2
+
 
 ```
 
+Determining if people are obese:
 
+```{r}
+is_obese_bmi <- c()
+for (item in df_full$BMXBMI){
+  if (is.na(item)){
+    is_obese_bmi <- append(is_obese_bmi, NA)
+  }
+  else if (item > 30){
+    is_obese_bmi <- append(is_obese_bmi, "1")
+  }
+  else{
+    is_obese_bmi <- append(is_obese_bmi, "2")
+  }
+}
+
+df_full$OBS_BMI <- is_obese_bmi
+```
 
 Regression (age vs age when got diabetes)
 
@@ -49,49 +109,130 @@ hist(mod$residuals)
 
 
 
+
+
+# Try to make a line plot with proportions of whether someone says yes or noo to something
+
 ```{r}
-mod <- lm(DID040 ~ RIDAGEYR,data = df_full)
-plot(df_full$RIDAGEYR, df_full$DID040)
-abline(mod)
+# subset dfs by each year
+df0910 <- df_full[df_full$Year == "2009-2010",]
+df1112 <- df_full[df_full$Year == "2011-2012",]
+df1314 <- df_full[df_full$Year == "2013-2014",]
+df1516 <- df_full[df_full$Year == "2015-2016",]
+df1718 <- df_full[df_full$Year == "2017-2018",]
+
+```
+
+```{r}
+dia_prop <- c()
+dia_prop <- append(dia_prop,
+                  table(df0910$DIQ010)[1]/dim(df0910)[1])
+dia_prop <- append(dia_prop,
+                  table(df1112$DIQ010)[1]/dim(df1112)[1])
+dia_prop <- append(dia_prop, 
+                  table(df1314$DIQ010)[1]/dim(df1314)[1])
+dia_prop <- append(dia_prop,
+                  table(df1516$DIQ010)[1]/dim(df1516)[1])
+dia_prop <- append(dia_prop,
+                  table(df1718$DIQ010)[1]/dim(df1718)[1])
+
 ```
 
 
-# Try to make a line plot with proportions of whether someone says yes or noo
+```{r}
+library(ggplot2)
+
+prop_df <- data.frame("Year" = c("2009-2010", 
+                                 "2011-2012",
+                                 "2013-2014",
+                                 "2015-2016",
+                                 "2017-2018"),
+                      "DIA_Prop" = dia_prop)
+
+ggplot(prop_df, aes(x = Year, y = DIA_Prop, group = 1)) + geom_point() + geom_path() + ylab("Diabetes Proportion") + theme_bw() + ggtitle("Diabetes Proportion vs. Year")
+```
+
+
+# Now looking at coronary heart disease
 
 ```{r}
+heart_prop <- c()
+heart_prop <- append(heart_prop,
+                  table(df0910$MCQ160B)[1]/dim(df0910)[1])
+heart_prop <- append(heart_prop,
+                  table(df1112$MCQ160B)[1]/dim(df1112)[1])
+heart_prop <- append(heart_prop, 
+                  table(df1314$MCQ160B)[1]/dim(df1314)[1])
+heart_prop <- append(heart_prop,
+                  table(df1516$MCQ160B)[1]/dim(df1516)[1])
+heart_prop <- append(heart_prop,
+                  table(df1718$MCQ160B)[1]/dim(df1718)[1])
+
+prop_df$HEART_prop <- heart_prop
+```
+
+```{r}
+ggplot(prop_df, aes(x = Year, y = HEART_prop, group = 1)) + geom_point() + geom_path() + ylab("Congestive Heart Disease Proportion") + theme_bw() + ggtitle("Congestive Heart Disease Proportion vs. Year")
 
 ```
 
 
+```{r}
+obs_prop <- c()
+obs_prop <- append(obs_prop,
+                  table(df0910$BMXBMI)[1]/dim(df0910)[1])
+obs_prop <- append(obs_prop,
+                  table(df1112$BMXBMI)[1]/dim(df1112)[1])
+obs_prop <- append(obs_prop, 
+                  table(df1314$BMXBMI)[1]/dim(df1314)[1])
+obs_prop <- append(obs_prop,
+                  table(df1516$BMXBMI)[1]/dim(df1516)[1])
+obs_prop <- append(obs_prop,
+                  table(df1718$BMXBMI)[1]/dim(df1718)[1])
+prop_df$OBS_prop <- obs_prop
+```
 
-# Potential target variables:
+```{r}
+ggplot(prop_df, aes(x = Year, y = OBS_prop, group = 1)) + geom_point() + geom_path() + ylab("Obesity based on BMI Proportion") + theme_bw() + ggtitle("Obesity vs. Year")
+```
+
+
+
+
+# Target Variables
 DIQ010
 
-names with one table value
-
-```{r}
-one_val <- c()
-for (col_name in names(df_sub)){
-  if (length(table(df_sub[col_name])) == 1){
-    one_val <- append(one_val, col_name)
-  }
-}
-```
-
 
 
 ```{r}
-df_sub <- df_full[,-which(names(df_full) %in% one_val)]
+#df_sub <- df_full[,-which(names(df_full) %in% one_val)]
 
-
-df_sub$DIQ010 <- as.factor(df_sub$DIQ010)
-null_model <- glm(DIQ010 ~ 1, data = df_sub, family = "binomial")
-full_model <- glm(DIQ010 ~ ., data = df_sub, family = "binomial")
+df_full <- subset(df_full, select = -c(BMIHEAD))
+#df_full$DIQ010 <- as.factor(df_full$DIQ010)
+null_model <- glm(DIQ010 ~ 1, data = df_full, family = "binomial")
+full_model <- glm(DIQ010 ~ ., data = df_full, family = "binomial")
 model_step_AIC <- step(null_model,
                        scope = list(lower = null_model, upper = full_model),
-                       direction="both", k = 2, trace = 0)
+                       direction="forward", k = 2, trace = 0)
 summary(model_step_AIC)
+
+
+str(df_full)
+
 ```
+
+```{r}
+# df_full$DIQ010 <- droplevels(df_full$DIQ010, except = c(1,2))
+ggplot(df_full, aes(x=DIQ010, y=RIDAGEYR)) + 
+  geom_boxplot() + xlab("Diabetes? 1 - Yes, 2 - No") + ylab("Age") + ggtitle("Age vs. Diabetes")
+
+```
+
+```{r}
+ggplot(df_full, aes(x=DIQ010, y=RIDAGEYR)) + 
+  geom_boxplot() + xlab("Diabetes? 1 - Yes, 2 - No") + ylab("Age") + ggtitle("Age vs. Diabetes")
+```
+
 
 # What I think is wrong
 
