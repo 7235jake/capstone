@@ -40,10 +40,49 @@ for(i in 1:505){
 common_ROVq_5year <- intersect(names(ROV_questions),common_cols)
 
 # common questions for each year
-common_09_10 <- df_09_10[which(common_ROVq_5year %in% colname_09_10)]
-common_11_12 <- df_11_12[which(common_ROVq_5year %in% colname_11_12)]
-common_13_14 <- df_13_14[which(common_ROVq_5year %in% colname_13_14)]
-common_15_16 <- df_15_16[which(common_ROVq_5year %in% colname_15_16)]
-common_17_18 <- df_17_18[which(common_ROVq_5year %in% colname_17_18)]
+common_09_10 <- df_09_10[which(colname_09_10  %in% common_ROVq_5year)]
+common_11_12 <- df_11_12[which(colname_11_12 %in% common_ROVq_5year)]
+common_13_14 <- df_13_14[which(colname_13_14 %in% common_ROVq_5year)]
+common_15_16 <- df_15_16[which(colname_15_16 %in% common_ROVq_5year)]
+common_17_18 <- df_17_18[which(colname_17_18 %in% common_ROVq_5year)]
 
+
+# Plots
+x_axis <- c("2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018")
+
+avgs <- matrix(0, 5, 80)
+
+for(i in 1:ncol(common_09_10))
+{
+  vec_09_10 <- common_09_10[i]
+  vec_11_12 <- common_11_12[i]
+  vec_13_14 <- common_13_14[i]
+  vec_15_16 <- common_15_16[i]
+  vec_17_18 <- common_17_18[i]
+  
+  
+  v_09_10 <- vec_09_10[!is.na(vec_09_10)]
+  v_11_12 <- vec_11_12[!is.na(vec_11_12)]
+  v_13_14 <- vec_13_14[!is.na(vec_13_14)]
+  v_15_16 <- vec_15_16[!is.na(vec_15_16)]
+  v_17_18 <- vec_17_18[!is.na(vec_17_18)]
+  
+  avgs[1, i] <- mean(v_09_10)
+  avgs[2, i] <- mean(v_11_12)
+  avgs[3, i] <- mean(v_13_14)
+  avgs[4, i] <- mean(v_15_16)
+  avgs[5, i] <- mean(v_17_18)
+  
+}
+
+colnames(avgs) <- colnames(common_09_10)
+rownames(avgs) <- x_axis
+
+index <- c(1, 2, 3, 4, 5)
+
+for(i in 1:length(colnames(common_09_10)))
+{
+  df <- data.frame(index, avgs[,i])
+  ggplot(df)
+}
 
