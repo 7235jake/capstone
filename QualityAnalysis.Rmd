@@ -56,8 +56,17 @@ Import data
 
 ```{r}
 load("C:/Users/laure/git/capstone/NHANESCleanFactors.RData")
-#str(df_full)
+df_full <- subset(df_full, select = -c(BMIHEAD))
+df_full$CBD071 <- as.numeric(df_full$CBD071)
+df_full$CBD091 <- as.numeric(df_full$CBD091)
+df_full$CBD111 <- as.numeric(df_full$CBD111)
+df_full$CBD121 <- as.numeric(df_full$CBD121)
+df_full$CBD131 <- as.numeric(df_full$CBD131)
+df_full$CBD760 <- as.numeric(df_full$CBD760)
+df_full$BPD035 <- as.numeric(df_full$BPD035)
+
 ```
+
 
 
 Cleaning added according to quality analysis:
@@ -202,12 +211,22 @@ ggplot(prop_df, aes(x = Year, y = OBS_prop, group = 1)) + geom_point() + geom_pa
 # Target Variables
 DIQ010
 
+```{r}
+one_val <- c()
+col_names <- names(df_full)
+for (i in 1:length(df_full)){
+  if (length(table(df_full[i])) == 1){
+    one_val <- col_names[i]
+  }
+}
+```
+
 
 
 ```{r}
 #df_sub <- df_full[,-which(names(df_full) %in% one_val)]
 
-df_full <- subset(df_full, select = -c(BMIHEAD))
+#df_full <- subset(df_full, select = -c(BMIHEAD))
 #df_full$DIQ010 <- as.factor(df_full$DIQ010)
 null_model <- glm(DIQ010 ~ 1, data = df_full, family = "binomial")
 full_model <- glm(DIQ010 ~ ., data = df_full, family = "binomial")
@@ -231,6 +250,43 @@ ggplot(df_full, aes(x=DIQ010, y=RIDAGEYR)) +
 ```{r}
 ggplot(df_full, aes(x=DIQ010, y=RIDAGEYR)) + 
   geom_boxplot() + xlab("Diabetes? 1 - Yes, 2 - No") + ylab("Age") + ggtitle("Age vs. Diabetes")
+```
+
+
+
+
+
+
+# Checking for how many null values there are and putting it into a table. 
+```{r}
+col_names <- names(df_full)
+prop_null <- c()
+for (i in 1:length(col_names)){
+  null_prop <- sum(is.na(df_full[i]))/dim(df_full[i])[1]
+  prop_null <- append(prop_null, null_prop)
+}
+
+null_df <- data.frame("VariableName" = col_names, "NullProportion" = prop_null)
+null_df
+```
+
+```{r}
+# Available variables
+available <- (1 - null_df$NullProportion)*dim(df_full)[1]
+null_df$Available <- available
+```
+
+
+```{r}
+save(null_df, file = "PropNullDF.RData")
+```
+
+
+# Box plot of null values
+```{r}
+library(ggplot2)
+ggplot(null_df, aes(x = "", y = NullProportion)) + 
+  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Null Proportions of Variables Summary")
 ```
 
 
