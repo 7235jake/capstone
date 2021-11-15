@@ -271,7 +271,22 @@ null_df
 ```
 
 ```{r}
+# Available variables
+available <- (1 - null_df$NullProportion)*dim(df_full)[1]
+null_df$Available <- available
+```
+
+
+```{r}
 save(null_df, file = "PropNullDF.RData")
+```
+
+
+# Box plot of null values
+```{r}
+library(ggplot2)
+ggplot(null_df, aes(x = "", y = NullProportion)) + 
+  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Null Proportions of Variables Summary")
 ```
 
 
