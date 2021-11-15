@@ -272,4 +272,32 @@ for( col in seq_along(df_merged)){
   
 }
 
+#Remove 99 and 77 from remaining factor questions 
+for(i in seq_along(factor_questions)){
+  if(length(which(colnames(df_full)==factor_questions[i])) > 0){
+    colnum <- which(colnames(df_full)==factor_questions[i])
+    
+    for( row in seq(dim(df_full)[1]) ){
+      if(is.na(df_full[row, colnum])){
+        row = row + 1
+      }
+      else if(df_full[row, colnum]=="99" || df_full[row,colnum]=="77"){
+        df_full[row,colnum] <-  NA
+      }
+    }
+    droplevels(df_full[,colnum])
+    #print(table(df_full[,colnum]))
+  }
+  
+}
+
+for(i in seq_along(factor_questions)){
+  if(length(which(colnames(df_full)==factor_questions[i])) > 0){
+    colnum <- which(colnames(df_full)==factor_questions[i])
+  
+      print(table(df_full[,colnum]))
+    }
+}
+
+
 #save(df_full, file = "NHANESCleanFactors.RData")
