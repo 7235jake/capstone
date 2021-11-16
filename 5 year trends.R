@@ -1,4 +1,6 @@
 library(tidyverse)
+library(ggplot2)
+library(ggalt)
 
 load("NHANESCleanFactors.RData")
 load("TranslationsFull.RData")
@@ -40,12 +42,19 @@ for(i in 1:505){
 common_ROVq_5year <- intersect(names(ROV_questions),common_cols)
 
 # common questions for each year
-common_09_10 <- df_09_10[which(colname_09_10  %in% common_ROVq_5year)]
+common_09_10 <- df_09_10[which(colname_09_10 %in% common_ROVq_5year)]
 common_11_12 <- df_11_12[which(colname_11_12 %in% common_ROVq_5year)]
 common_13_14 <- df_13_14[which(colname_13_14 %in% common_ROVq_5year)]
 common_15_16 <- df_15_16[which(colname_15_16 %in% common_ROVq_5year)]
 common_17_18 <- df_17_18[which(colname_17_18 %in% common_ROVq_5year)]
 
+#Order Names
+
+common_17_18 <- common_17_18[ , order(names(common_17_18))]
+common_15_16 <- common_15_16[ , order(names(common_15_16))]
+common_13_14 <- common_13_14[ , order(names(common_13_14))]
+common_11_12 <- common_11_12[ , order(names(common_11_12))]
+common_09_10 <- common_09_10[ , order(names(common_09_10))]
 
 # Plots
 x_axis <- c("2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018")
@@ -80,9 +89,24 @@ rownames(avgs) <- x_axis
 
 index <- c(1, 2, 3, 4, 5)
 
-for(i in 1:length(colnames(common_09_10)))
-{
-  df <- data.frame(index, avgs[,i])
-  ggplot(df)
-}
+# for(i in 1:length(colnames(common_09_10)))
+# {
+#   df <- data.frame("Year" = c("2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018"), "Averages" = avgs[,i])
+#   df
+# 
+#   subtitle_vec <- Hmisc::label(common_09_10)
+#   sub_title <- paste(colnames(common_09_10)[i], subtitle_vec[[i]], sep = " - ")
+# 
+#   gg <- ggplot(df, aes(x=Year, y=Averages, group=1)) +  geom_line() + geom_point(aes(size=Averages)) +
+#     theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+#     labs(subtitle=sub_title ,
+#          y="Average", x="Year", title="Average Vs Year")
+# 
+#   # Saving Plots
+# 
+#   filename = paste("C:/Users/owner/OneDrive/CMDA Capstone/capstone/ROV_avgs_5_year_plots/", colnames(common_09_10)[i],"-", "Avg_vs_Year.pdf", sep="")
+#   ggsave(filename, gg)
+# 
+# }
+
 
