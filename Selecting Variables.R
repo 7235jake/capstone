@@ -7,3 +7,4 @@ y <- c("CBD111", "DBD381", "DBD411", "DBD895", "RIDAGEMN", "RIDAGEYR",
 
 qs_to_include <- x[!(x %in% y)]
 
+save(qs_to_include, file = "Diabetes_ROV_qs.RData")
