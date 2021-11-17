@@ -320,14 +320,21 @@ selected_df <- subset(df_full, select = c(col_greater_3000))
 
 ```{r}
 library(tidyverse)
-predictorSet <- c("DIQ010", "RIDAGEYR", "RIAGENDR", "BMXBMI")
+predictorSet <- qs_to_include
+
+include_df <- subset(selected_df, select = c(predictorSet))
+
+include_df$DIQ010 <- selected_df$DIQ010
+include_df$Age <- selected_df$RIDAGEYR
+include_df$Gender <- selected_df$RIAGENDR
+
 
 # Including everything from selected_df results in 0
 selected_df %>% 
-  select(one_of(names(selected_df))) %>% 
+  select(one_of(names(predictorSet))) %>% 
   na.omit() %>% 
   nrow()
-
+include_df <- na.omit(include_df)
 #selected_df %>% 
 #  select(one_of(names(selected_df))) %>% 
 #  na.omit() %>% 
@@ -335,11 +342,54 @@ selected_df %>%
 ```
 
 ```{r}
-mod1 <- glm(DIQ010 ~ 
-              RIDAGEYR + 
-              RIAGENDR + 
-              BMXBMI, data = selected_df, family = "binomial")
+mod1 <- glm(DIQ010 ~ LBDHDD
+ + LBDHDDSI
+ + LBXTR   
+ + LBDTRSI 
+ + LBDLDL  
+ + LBDLDLSI
+ + LBXTC
+ + LBDTCSI
+ + LBXGLU
+ + LBDGLUSI
+ + CBD121
+ + CBD131
+ + DBD900
+ + DBD905
+ + DBD910
+ + PAQ625
+ + PAD630
+ + PAQ670
+ + PAD675
+ + PAD680
+ + WHD010
+ + WHD020
+ + WHD050
+ + WHD110
+ + WHD120
+ + WHD130 
+ + WHD140 
+ + WHQ150  
+ + BMXWT  
+ + BMXHT 
+ + BMXBMI
+ + BMXLEG 
+ + BMXARML 
+ + BMXARMC 
+ + BMXWAIST
+ + BPD035  
+ + INDFMPIR
+ + WTINT2YR
+ + WTMEC2YR + Gender + Age,
+ data = include_df, family = "binomial")
 summary(mod1)
+
+mod0 <- glm(DIQ010 ~ 1,data = include_df, family = "binomial")
+
+model_step_AIC <- step(mod0,
+                       scope = list(lower = mod0, upper = mod1),
+                       direction="forward", k = 2, trace = 0)
+summary(model_step_AIC)
 ```
 
 
