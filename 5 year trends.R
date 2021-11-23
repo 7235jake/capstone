@@ -89,24 +89,24 @@ rownames(avgs) <- x_axis
 
 index <- c(1, 2, 3, 4, 5)
 
-# for(i in 1:length(colnames(common_09_10)))
-# {
-#   df <- data.frame("Year" = c("2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018"), "Averages" = avgs[,i])
-#   df
-# 
-#   subtitle_vec <- Hmisc::label(common_09_10)
-#   sub_title <- paste(colnames(common_09_10)[i], subtitle_vec[[i]], sep = " - ")
-# 
-#   gg <- ggplot(df, aes(x=Year, y=Averages, group=1)) +  geom_line() + geom_point(aes(size=Averages)) +
-#     theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-#     labs(subtitle=sub_title ,
-#          y="Average", x="Year", title="Average Vs Year")
-# 
-#   # Saving Plots
-# 
-#   filename = paste("C:/Users/owner/OneDrive/CMDA Capstone/capstone/ROV_avgs_5_year_plots/", colnames(common_09_10)[i],"-", "Avg_vs_Year.pdf", sep="")
-#   ggsave(filename, gg)
-# 
-# }
+for(i in 1:length(colnames(common_09_10)))
+{
+  df <- data.frame("Year" = c("2009-2010", "2011-2012", "2013-2014", "2015-2016", "2017-2018"), "Averages" = avgs[,i])
+  df
+
+  subtitle_vec <- Hmisc::label(common_09_10)
+  sub_title <- paste(colnames(common_09_10)[i], subtitle_vec[[i]], sep = " - ")
+
+  gg <- ggplot(df, aes(x=Year, y=Averages, group=1)) +  geom_line() + geom_point(aes(size=Averages)) +
+    theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+    labs(subtitle=sub_title ,
+         y="Average", x="Year", title="Average Vs Year")
+
+  # Saving Plots
+
+  filename = paste("C:/Users/owner/OneDrive/CMDA Capstone/capstone/ROV_avgs_5_year_plots/", colnames(common_09_10)[i],"-", "Avg_vs_Year.pdf", sep="")
+  ggsave(filename, gg)
+
+}
 
 
