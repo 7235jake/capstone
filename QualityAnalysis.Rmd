@@ -278,7 +278,8 @@ save(null_df, file = "PropNullDF.RData")
 ```{r}
 library(ggplot2)
 null_boxplot <- ggplot(null_df, aes(x = "", y = NullProportion)) + 
-  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Null Proportions of Variables Summary")
+  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Null Proportions of Variables Summary") + theme_bw()
+null_boxplot
 ```
 
 ```{r}
@@ -287,8 +288,13 @@ length(num)
 ```
 ```{r}
 avail_boxplot <- ggplot(null_df, aes(x = "", y = Available)) + 
-  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Availability of Observations within Variables Summary")
+  geom_boxplot() + xlab("") + ylab("Summary") + ggtitle("Availability of Observations within Variables Summary") + theme_bw()
 ```
+
+```{r}
+avail_boxplot
+```
+
 
 ```{r}
 ggsave("avail_boxplot.pdf",avail_boxplot)
@@ -314,7 +320,7 @@ str(df_full$DIQ010)
 ```{r}
 col_greater_10000 <- null_df$VariableName[null_df$Available > 10000]
 
-selected_df <- subset(df_full, select = c(col_greater_3000))
+selected_df <- subset(df_full, select = c(col_greater_10000))
 
 ```
 
@@ -324,13 +330,16 @@ predictorSet <- qs_to_include
 
 include_df <- subset(selected_df, select = c(predictorSet))
 
+#One of the big outliers of 9999 and 7777
+include_df$WHD110[include_df$WHD110 == 9999 | include_df$WHD110 == 7777] <- NA
+
 include_df$DIQ010 <- selected_df$DIQ010
 include_df$Age <- selected_df$RIDAGEYR
 include_df$Gender <- selected_df$RIAGENDR
 
 
-# Including everything from selected_df results in 0
-selected_df %>% 
+# Including everything from include_df results in 0
+include_df %>% 
   select(one_of(names(predictorSet))) %>% 
   na.omit() %>% 
   nrow()
@@ -340,6 +349,9 @@ include_df <- na.omit(include_df)
 #  na.omit() %>% 
 #  nrow()
 ```
+
+Quantitative Variables!
+
 
 ```{r}
 mod1 <- glm(DIQ010 ~ LBDHDD
@@ -393,37 +405,74 @@ summary(model_step_AIC)
 ```
 
 
+
+Qualitative Variables:
+
 ```{r}
-str(selected_df)
-str(selected_df[95:dim(selected_df)[2]])
-str(selected_df[150:dim(selected_df)[2]])
-#selected_df <- subset(selected_df, select = -c(Year))
-#for (item in 1:length(names(selected_df))){
-#  if (!is.numeric(selected_df[item])){
-#    print("HI")
-#    print(names(selected_df)[item])
-#    print(table(selected_df[item]))
-#  }
- 
-#}
+#str(selected_df)
+cat_df <- selected_df[,sapply(selected_df,is.factor)]
+dim(cat_df)
 
-selected_df <- subset(selected_df, select = -c(SEQN))
+```
+154 variables 
 
+```{r}
+library(tidyverse)
+cat_df %>% 
+  select(one_of(names(cat_df))) %>% 
+  na.omit() %>% 
+  nrow()
+#cat_df <- na.omit(cat_df)
+```
 
-  
+```{r}
+cat_null <- null_df[is.element(null_df$VariableName,c(names(cat_df))),]
+```
+
+```{r}
+barplot(cat_null$Available)
+```
+
+```{r}
+cat_greater_30000 <- cat_null$VariableName[cat_null$Available > 10000]
+
+cat_selected <- subset(cat_df, select = c(cat_greater_30000))
+
+cat_selected %>% 
+  select(one_of(names(cat_selected))) %>% 
+  na.omit() %>% 
+  nrow()
+
+cat_selected <- na.omit(cat_selected)
+
+summary(cat_selected)
+remove_these <- c("AIALANGA",
+                  "BMDSTATS",
+                  "CBQ695",
+                  "CBQ695.1",
+                  "CBQ698",
+                  "CBQ698.1",
+                  "CBQ738",
+                  "CBQ738.1")
+
+# ISSUE: the DIQ010 does not have literally any yes responses, not good..
+
 ```
 
 
+
 ```{r}
-null_model <- glm(DIQ010 ~ 1, data = selected_df, family = "binomial")
-full_model <- glm(DIQ010 ~ , data = selected_df, family = "binomial")
-model_step_AIC <- step(null_model,
-                       scope = list(lower = null_model, upper = full_model),
+full_cat_mod <- glm(DIQ010 ~ .,
+ data = cat_selected, family = "binomial")
+summary(full_cat_mod)
+
+mod0 <- glm(DIQ010 ~ 1,data = include_df, family = "binomial")
+
+model_step_AIC <- step(mod0,
+                       scope = list(lower = mod0, upper = mod1),
                        direction="forward", k = 2, trace = 0)
 summary(model_step_AIC)
-
 ```
-
 ```{r}
 save(selected_df, file = "selected_df.RData")
 ```
@@ -431,16 +480,210 @@ save(selected_df, file = "selected_df.RData")
 
 
 
-# What I think is wrong
 
-- The 1 and 2s needs to be a factor type
-- there are still 3/9/7s in the data sets for some reason
-
-# Things that can be nice for quality analysis
-
-- proportions and compare by year
+-------------------Jump to going back to quantitative values-------------------
 
 
-# Instead of cleaning, try to combine the variables that are the same at the front. 
+Mod2 is a similar model to model_step_aic but without the insignificant variables
+
+```{r}
+mod2 <- glm(formula = DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + 
+    WTMEC2YR + BMXARML + WHD140 + LBDHDDSI + WHD110, family = "binomial", data = include_df)
+summary(mod2)
+```
+```{r}
+anova(mod2, model_step_AIC)
+```
+
+Mod2 is a better model according to the anova. Lets see if any are multicolinear:
+
+```{r}
+mod3 <- glm(formula = DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + BMXARML + WHD110 + LBDHDDSI, family = "binomial", data = include_df)
+summary(mod3)
+```
+```{r}
+anova(mod3, model_step_AIC)
+```
+
+
+```{r}
+anova(mod3, mod2)
+```
+
+
+
+```{r}
+mod_vars <- subset(include_df, select = c(LBDGLUSI , LBDTCSI , PAD675 , BMXARML , 
+    WHD110 ,LBDHDDSI))
+
+pairs(mod_vars)
+```
+
+BMXARML and WHD140 are colinear.
+
+```{r}
+mod4 <- glm(formula = DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + BMXARML*WHD110 + LBDHDDSI, family = "binomial", data = include_df)
+summary(mod4)
+```
+
+```{r}
+anova(mod3, mod4)
+```
+
+
+
+```{r}
+library(tree)
+tree1 <- tree(DIQ010 ~ LBDHDD
+ + LBDHDDSI
+ + LBXTR   
+ + LBDTRSI 
+ + LBDLDL  
+ + LBDLDLSI
+ + LBXTC
+ + LBDTCSI
+ + LBXGLU
+ + LBDGLUSI
+ + CBD121
+ + CBD131
+ + DBD900
+ + DBD905
+ + DBD910
+ + PAQ625
+ + PAD630
+ + PAQ670
+ + PAD675
+ + PAD680
+ + WHD010
+ + WHD020
+ + WHD050
+ + WHD110
+ + WHD120
+ + WHD130 
+ + WHD140 
+ + WHQ150  
+ + BMXWT  
+ + BMXHT 
+ + BMXBMI
+ + BMXLEG 
+ + BMXARML 
+ + BMXARMC 
+ + BMXWAIST
+ + BPD035  
+ + INDFMPIR
+ + WTINT2YR
+ + WTMEC2YR + Gender + Age, data = include_df)
+
+summary(tree1)
+```
+
+Tree 1 Variables Used:
+
+LBXGLU - Fasting Glucose (mg/dL)
+BMXWT - Weight (kg)
+WTINT2YR - Full Sample 2 Year Interview Weight
+INDFMPIR - Ratio of family income to poverty
+WTMEC2YR - Full Sample 2 Year MEC Exam Weight
+LBXTC - Total Cholesterol (mg/dL)
+CBD131 - Money spent on carryout/delivered foods
+BPD035 - Age told had hypertension
+LBDHDD - Direct HDL Cholesterol (mg/dL)
+LBXTR - Triglyceride (mg/dL)
+WHD020 - Current self-reported weight (pounds)
+WHD010 - Current self-reported height (inches)
+LBDLDL - LDL-Cholesterol, Friedewald (mg/dL)
+PAQ625 - Number of days moderate work
+WHD130 - Self-reported height -age 25 (inches)
+
+
+
+
+```{r}
+plot(tree1)
+text(tree1, cex = 0.7)
+```
+
+
+```{r}
+tree_df <- subset(include_df, select = c("LBXGLU" ,  "BMXWT"  ,  "WTINT2YR", "INDFMPIR" ,"WTMEC2YR", "LBXTC"  ,  "CBD131" ,  "BPD035" ,  "LBDHDD"   ,"LBXTR",    "WHD020" ,  "WHD010" ,  "LBDLDL" ,  "PAQ625" , "WHD130"))
+pairs(tree_df[1:5])
+pairs(tree_df[5:10])
+pairs(tree_df[10:15])
+```
+
+Vars with outliers: bpd035, cbd131, whd130. wtint2yr and wtmec2yr are too correlated. 
+
+
+
+
+```{r}
+library(randomForest)
+
+include_df$DIQ010 <- droplevels(include_df$DIQ010)
+
+
+rforest <- randomForest(formula = DIQ010 ~ LBDHDD
+ + LBDHDDSI
+ + LBXTR   
+ + LBDTRSI 
+ + LBDLDL  
+ + LBDLDLSI
+ + LBXTC
+ + LBDTCSI
+ + LBXGLU
+ + LBDGLUSI
+ + CBD121
+ + CBD131
+ + DBD900
+ + DBD905
+ + DBD910
+ + PAQ625
+ + PAD630
+ + PAQ670
+ + PAD675
+ + PAD680
+ + WHD010
+ + WHD020
+ + WHD050
+ + WHD110
+ + WHD120
+ + WHD130 
+ + WHD140 
+ + WHQ150  
+ + BMXWT  
+ + BMXHT 
+ + BMXBMI
+ + BMXLEG 
+ + BMXARML 
+ + BMXARMC 
+ + BMXWAIST
+ + BPD035  
+ + INDFMPIR
+ + WTINT2YR
+ + WTMEC2YR + Gender + Age, data = include_df, ntree = 250, nodesize = 25, importance = TRUE)
+
+varImpPlot(rforest, type = 1, main = "")
+```
+
+Top Ten Variables
+
+LBDGLUSI - Fasting Glucose (mmol/L)
+LBXGLU - Fasting Glucose (mg/dL)
+LBDLDLSI - LDL-Cholesterol, Friedewald (mmol/L)
+LBDTCSI - Total Cholesterol (mmol/L)
+WHD110 - Self-reported weight-10 yrs ago (pounds)
+LBXTC - Total Cholesterol (mg/dL)
+WHD050 - Self-reported weight-1 yr ago (pounds)
+WHD140 - Self-reported greatest weight (pounds)
+LBDLdL - LDL-Cholesterol, Friedewald (mg/dL)
+BMXWaist - Waist Circumference (cm)
+BMXARML - Upper Arm Length (cm)
+
+```{r}
+
+```
+
+
+
 
 
