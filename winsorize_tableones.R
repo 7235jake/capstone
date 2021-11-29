@@ -29,16 +29,17 @@ winsorize <- function(df)
   
 }
 
-winsorize(x)
+winsorize(selected_df)
 winsorize(df_11_12)
 winsorize(df_13_14)
 winsorize(df_15_16)
 winsorize(df_17_18)
 winsorize(df_full2009)
 
-save(x, file = "selected_df.RData")
-save(df_11_12, file = "selected_df.RData")
-save(df_13_14, file = "selected_df.RData")
-save(df_15_16, file = "selected_df.RData")
-save(df_17_18, file = "selected_df.RData")
+save(selected_df, file = "selected_df.RData")
+save(df_11_12, file = "NHANES_Clean_2011_2012.RData")
+save(df_13_14, file = "NHANES_Clean_2013_2014.RData")
+save(df_15_16, file = "NHANES_Clean_2015_2016.RData")
+save(df_17_18, file = "NHANES_Clean_2017_2018.RData")
 save(df_full2009, file = "selected_df.RData")
+
