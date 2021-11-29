@@ -519,7 +519,7 @@ mod_vars <- subset(include_df, select = c(LBDGLUSI , LBDTCSI , PAD675 , BMXARML 
 pairs(mod_vars)
 ```
 
-BMXARML and WHD140 are colinear.
+BMXARML and WHD140 are colinear. Need to modify mod3 because of this. 
 
 ```{r}
 mod4 <- glm(formula = DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + BMXARML*WHD110 + LBDHDDSI, family = "binomial", data = include_df)
@@ -529,6 +529,24 @@ summary(mod4)
 ```{r}
 anova(mod3, mod4)
 ```
+
+```{r}
+summary(mod3)
+```
+
+Since BMXARML is more significant than WHD110, we are going to keep that variable and remove whd110
+
+```{r}
+mod5 <- glm(DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + BMXARML + LBDHDDSI, family = "binomial", data = include_df)
+summary(mod5)
+```
+
+LBDGLUSI - Fasting Glucose (mmol/L)
+LBDTCSI - Total Cholesterol (mmol/L)
+PAD675 - Minutes moderate recreational activities
+BMXARML - Upper Arm Length (cm)
+LBDHDDSI - Direct HDL-Cholesterol (mmol/L)
+
 
 
 
@@ -613,6 +631,14 @@ pairs(tree_df[10:15])
 
 Vars with outliers: bpd035, cbd131, whd130. wtint2yr and wtmec2yr are too correlated. 
 
+```{r}
+table(include_df$WHD130)
+include_df <- include_df[include_df$BPD035 != 999]
+include_df <- include_df[include_df$CBD131 != 777777 | include_df$CBD131 != 999999]
+include_df <- include_df[include_df$WHD130 != 9999]
+```
+
+
 
 
 
@@ -668,22 +694,232 @@ varImpPlot(rforest, type = 1, main = "")
 Top Ten Variables
 
 LBDGLUSI - Fasting Glucose (mmol/L)
-LBXGLU - Fasting Glucose (mg/dL)
+-- LBXGLU - Fasting Glucose (mg/dL)
 LBDLDLSI - LDL-Cholesterol, Friedewald (mmol/L)
 LBDTCSI - Total Cholesterol (mmol/L)
 WHD110 - Self-reported weight-10 yrs ago (pounds)
-LBXTC - Total Cholesterol (mg/dL)
-WHD050 - Self-reported weight-1 yr ago (pounds)
-WHD140 - Self-reported greatest weight (pounds)
-LBDLdL - LDL-Cholesterol, Friedewald (mg/dL)
+--LBXTC - Total Cholesterol (mg/dL)
+--WHD050 - Self-reported weight-1 yr ago (pounds)
+--WHD140 - Self-reported greatest weight (pounds)
+--LBDLdL - LDL-Cholesterol, Friedewald (mg/dL)
 BMXWaist - Waist Circumference (cm)
 BMXARML - Upper Arm Length (cm)
 
+
+
+
+
+------ MAIN VARIABLES I AM INTERESTED IN NOW -----------------------------
+
+LBDGLUSI - Fasting Glucose (mmol/L)
+LBDLDLSI - LDL-Cholesterol, Friedewald (mmol/L)
+LBDTCSI - Total Cholesterol (mmol/L)
+WHD110 - Self-reported weight-10 yrs ago (pounds) #
+BMXWaist - Waist Circumference (cm)               # Potentially Co linear
+BMXARML - Upper Arm Length (cm)                   #
+BMXWT - Weight (kg)
+INDFMPIR - Ratio of family income to poverty
+CBD131 - Money spent on carryout/delivered foods
+BPD035 - Age told had hypertension
+PAQ625 - Number of days moderate work
+WHD130 - Self-reported height -age 25 (inches)
+PAD675 - Minutes moderate recreational activities
+LBDHDDSI - Direct HDL-Cholesterol (mmol/L)
+
+
+
 ```{r}
+# Cleaning variables
+selected_df$BPD035[selected_df$BPD035 == 999] <- NA
+selected_df$CBD131[selected_df$CBD131 == 777777 | selected_df$CBD131 == 999999] <- NA
+selected_df$WHD130[selected_df$WHD130 == 9999] <- NA
+selected_df$WHD110[selected_df$WHD110 == 9999] <- NA
+selected_df$PAD675[selected_df$PAD675 == 9999] <- NA
+
+
+
+var_selected <- subset(selected_df, select = c(
+  LBDGLUSI,
+  LBDLDLSI,
+  LBDTCSI,
+  WHD110,
+  BMXWAIST,
+  BMXARML,
+  BMXWT,
+  INDFMPIR,
+  CBD131,
+  BPD035,
+  PAQ625,
+  WHD130,
+  PAD675,
+  LBDHDDSI,
+  DIQ010
+))
+
 
 ```
 
 
 
+```{r}
+var_selected %>% 
+  select(one_of(names(var_selected))) %>% 
+  na.omit() %>% 
+  nrow()
+var_selected <- na.omit(var_selected)
+
+var_selected$DIQ010 <- droplevels(var_selected$DIQ010)
+```
+
+
+
+```{r}
+null_mod <- glm(DIQ010 ~ 1, data = var_selected, family = "binomial")
+full_mod <- glm(DIQ010 ~ ., data = var_selected, family = "binomial")
+best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+                       direction="forward", k = 2, trace = 0)
+summary(best_mod)
+```
+
+
+```{r}
+tree2 <- tree(DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + BMXWAIST + 
+    WHD130 + WHD110 + INDFMPIR, data = var_selected)
+summary(tree2)
+```
+
+```{r}
+plot(tree2)
+text(tree2, cex = 0.7)
+```
+
+
+
+```{r}
+rforest2 <- randomForest(DIQ010 ~ ., data = var_selected, ntree = 250, nodesize = 25, importance = TRUE)
+varImpPlot(rforest2, type = 1, main = "")
+```
+
+```{r}
+pairs(var_selected[1:7])
+pairs(var_selected[8:15])
+```
+
+
+----- Training and testing the model! ---------------------------
+
+```{r}
+
+# Creating Training and Testing Dataset
+set.seed(1234)
+index <- sample(1:nrow(var_selected), round(nrow(var_selected) * 0.7))
+training_df <- var_selected[index, ]
+testing_df <- var_selected[-index, ]
+
+
+```
+
+```{r}
+training_df$DIQ010 <- as.integer(training_df$DIQ010)
+training_df$DIQ010[training_df$DIQ010 == 1] <- 1
+training_df$DIQ010[training_df$DIQ010 == 2] <- 0
+
+null_mod <- glm(DIQ010 ~ 1, data = training_df, family = "binomial")
+full_mod <- glm(DIQ010 ~ ., data = training_df, family = "binomial")
+best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+                       direction="forward", k = 2, trace = 0)
+summary(best_mod)
+```
+
+Same model as the one created without the train!
+
+
+```{r}
+csq <- 299.14 - 153.87
+pchisq(csq, df = 7, lower.tail = F)
+```
+This means that the model is a good fit.
+
+```{r}
+odds <- best_mod$coefficients[1] +
+best_mod$coefficients[2]*training_df$LBDGLUSI +
+best_mod$coefficients[3]*training_df$LBDTCSI +
+best_mod$coefficients[4]*training_df$PAD675 + 
+best_mod$coefficients[5]*training_df$INDFMPIR + 
+best_mod$coefficients[6]*training_df$BMXWAIST +
+best_mod$coefficients[7]*training_df$WHD130 +
+best_mod$coefficients[8]*training_df$WHD110
+
+
+
+
+library(ggplot2)
+ggplot(training_df, aes(x = odds, y = DIQ010)) +
+geom_point() +
+geom_smooth(method = "glm", method.args = list(family = "binomial"), size = 1.5) +
+labs(y = "Probability of Strong Agreement") + theme_bw()
+```
+
+Thresholdd of 0.5
+
+```{r}
+testing_df$DIQ010 <- as.integer(testing_df$DIQ010)
+testing_df$DIQ010[testing_df$DIQ010 == 1] <- 1
+testing_df$DIQ010[testing_df$DIQ010 == 2] <- 0
+
+pihat_train <- predict(best_mod,
+                       newdata = testing_df,
+                       type = "response")
+threshold <- 0.50
+predicted_category <- factor( ifelse(pihat_train > threshold,
+1, 0))
+testing_df$DIQ010 <- as.factor(testing_df$DIQ010)
+
+library(caret)
+
+confusionMatrix(data = predicted_category,
+reference = (testing_df$DIQ010))
+```
+
+79% Accurate. 
+
+```{r}
+# Taking out insignificant variables. 
+sigmod <- glm(formula = DIQ010 ~ LBDGLUSI + LBDTCSI + PAD675 + INDFMPIR, family = "binomial", data = training_df)
+summary(sigmod)
+```
+
+LBDGLUSI - Fasting Glucose (mmol/L)
+LBDTCSI - Total Cholesterol (mmol/L)
+PAD675 - Minutes moderate recreational activities
+INDFMPIR - Ratio of family income to poverty
+
+```{r}
+csq <- 299.14 - 164.85
+pchisq(csq, df = 4, lower.tail = F)
+```
+
+```{r}
+pihat_train <- predict(sigmod,
+                       newdata = testing_df,
+                       type = "response")
+threshold <- 0.50
+predicted_category <- factor( ifelse(pihat_train > threshold,
+1, 0))
+testing_df$DIQ010 <- as.factor(testing_df$DIQ010)
+
+library(caret)
+
+confusionMatrix(data = predicted_category,
+reference = (testing_df$DIQ010))
+```
+80% accurate. So more accurate than the step wise model. 
+
+
+```{r}
+pairs(var_selected[c("LBDGLUSI", "LBDTCSI", "PAD675", "INDFMPIR")])
+```
+
+None look colinear which is good.
 
 
