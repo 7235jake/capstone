@@ -1,0 +1,76 @@
+---
+title: "univariate"
+author: "Evan Briscoe"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+for(x in colnames(selected_df)){
+  
+  chi.frame <- data.frame(diabetes = droplevels(selected_df$DIQ010), y = select(selected_df,BMDSTATS))
+  chi.frame <- na.omit(chi.frame)
+  chisq <- chisq.test(table(chi.frame))
+  
+}
+chisq
+summary(chi.frame)
+chi.frame$diabetes <- droplevels(chi.frame$diabetes)
+str(chi.frame$diabetes)
+
+chi.frame <- data.frame(bmi = selected_df$BMXBMI, leg = selected_df$BMXLEG)
+chi.frame$bmi
+chisq <- chisq.test(chi.frame)
+table(chi.frame)
+
+chisq.test(na.omit(selected_df$BMXBMI))
+f <- (droplevels(selected_df$DIQ010))
+summary(droplevels(selected_df$DIQ010))
+```
+
+```{r}
+library(tidyverse)
+library(magrittr)
+#Grab all factor questions
+df_factors <- select(selected_df,names(Filter(is.factor,selected_df)))
+
+#Diabetets had an outstanding level
+levels(droplevels(selected_df$DIQ010))
+
+# Create vectors to be placed in dataframe
+p_values <- c()
+test_stats <- c()
+rowNum <- c()
+#Index counter since the for loop traverses through the names themselves
+index = 1
+for(x in colnames(df_factors)){
+  # put diabetes and every question in a dataframe
+  chi.frame <- data.frame(diabetes = droplevels(df_factors$DIQ010), y = droplevels(select(df_factors,x)))
+  #Get rid of NAs
+  chi.frame <- na.omit(chi.frame)
+  #Conduct chi square
+  chisq <- chisq.test(table(chi.frame), simulate.p.value = TRUE)
+  #For verification you may print the index and summary
+  #print(index)
+  #print(chisq)
+  
+  #Add current stats to our appropriate vectors
+  p_values %<>% append(chisq$p.value)
+  test_stats %<>% append(chisq$statistic)
+  rowNum %<>% append(length(chi.frame[,1]))
+  
+  index = index + 1
+}
+#Create chi-square dataframe
+chisquares <- data.frame(name = colnames(df_factors), p_value = p_values, test_stat =test_stats, rowNum = rowNum)
+chisquares %<>% arrange(p_value, desc(rowNum), test_stat)
+
+chisquares
+```
+
+Need to figure out whats going on with the Diabetes questions having NaN for p_value and test_stat (DIQ 160 170 172 180 )
+
+```{r}
+
+```
+
