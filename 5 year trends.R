@@ -5,22 +5,19 @@ library(ggalt)
 load("NHANESCleanFactors.RData")
 load("TranslationsFull.RData")
 
-load("NHANES_Clean_2009_2010.RData")
-# renaming 2009-2010 for consistency
-df_09_10 <- df_full2009
-
-load("NHANES_Clean_2011_2012.RData")
-load("NHANES_Clean_2013_2014.RData")
-load("NHANES_Clean_2015_2016.RData")
-load("NHANES_Clean_2017_2018.RData")
+load("NHANES_Winsorized_2009_2010.RData")
+load("NHANES_Winsorized_2011_2012.RData")
+load("NHANES_Winsorized_2013_2014.RData")
+load("NHANES_Winsorized_2015_2016.RData")
+load("NHANES_Winsorized_2017_2018.RData")
 
 # Getting list of all column names for each year
 
-colname_09_10 <- colnames(df_09_10)
-colname_11_12 <- colnames(df_11_12)
-colname_13_14 <- colnames(df_13_14)
-colname_15_16 <- colnames(df_15_16)
-colname_17_18 <- colnames(df_17_18)
+colname_09_10 <- colnames(df0910)
+colname_11_12 <- colnames(df1112)
+colname_13_14 <- colnames(df1314)
+colname_15_16 <- colnames(df1516)
+colname_17_18 <- colnames(df1718)
 colname_full <- colnames(df_full)
 
 
@@ -42,11 +39,11 @@ for(i in 1:505){
 common_ROVq_5year <- intersect(names(ROV_questions),common_cols)
 
 # common questions for each year
-common_09_10 <- df_09_10[which(colname_09_10 %in% common_ROVq_5year)]
-common_11_12 <- df_11_12[which(colname_11_12 %in% common_ROVq_5year)]
-common_13_14 <- df_13_14[which(colname_13_14 %in% common_ROVq_5year)]
-common_15_16 <- df_15_16[which(colname_15_16 %in% common_ROVq_5year)]
-common_17_18 <- df_17_18[which(colname_17_18 %in% common_ROVq_5year)]
+common_09_10 <- df0910[which(colname_09_10 %in% common_ROVq_5year)]
+common_11_12 <- df1112[which(colname_11_12 %in% common_ROVq_5year)]
+common_13_14 <- df1314[which(colname_13_14 %in% common_ROVq_5year)]
+common_15_16 <- df1516[which(colname_15_16 %in% common_ROVq_5year)]
+common_17_18 <- df1718[which(colname_17_18 %in% common_ROVq_5year)]
 
 #Order Names
 
@@ -102,8 +99,8 @@ for(i in 1:length(colnames(common_09_10)))
     labs(subtitle=sub_title ,
          y="Average", x="Year", title="Average Vs Year")
 
+  plot(gg)
   # Saving Plots
-
   filename = paste("C:/Users/owner/OneDrive/CMDA Capstone/capstone/ROV_avgs_5_year_plots/", colnames(common_09_10)[i],"-", "Avg_vs_Year.pdf", sep="")
   ggsave(filename, gg)
 
