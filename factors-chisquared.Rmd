@@ -66,6 +66,7 @@ chisquares <- data.frame(name = colnames(df_factors), p_value = p_values, test_s
 chisquares %<>% arrange(p_value, desc(rowNum), test_stat)
 
 chisquares
+#save(chisquares, file = "chisquareTestFactors.RData")
 ```
 
 Need to figure out whats going on with the Diabetes questions having NaN for p_value and test_stat (DIQ 160 170 172 180 )
