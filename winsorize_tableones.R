@@ -16,30 +16,49 @@ winsorize <- function(df)
       for(j in 1:nrow(df))
       {
         if(!(is.na(df[j, i]))){
-          if(df[j, i] < q[1]){
-            df[j, i] <- q[1]
+          if(df[j, i] < q[[1]]){
+            df[j, i] <- q[[1]]
           }
-          if(df[j, i] > q[2]){
-            df[j, i] <- q[2]
+          if(df[j, i] > q[[2]]){
+            df[j, i] <- q[[2]]
           }
         }
       }
     }
   }
-  
+  return(df)
 }
 
-winsorize(selected_df)
-winsorize(df_11_12)
-winsorize(df_13_14)
-winsorize(df_15_16)
-winsorize(df_17_18)
-winsorize(df_full2009)
+# df <- df_11_12
+# 
+# if(!(is.factor(df[,3]))){
+#   q <- quantile(df[,3], c(0.025, 0.975), na.rm = TRUE, type = 1)
+#   for(j in 1:nrow(df))
+#   {
+#     if(!(is.na(df[j, 3]))){
+#       if(df[j, 3] < q[[1]]){
+#         df[j, 3] <- q[[1]]
+#       }
+#       if(df[j, 3] > q[[2]]){
+#         df[j, 3] <- q[[2]]
+#       }
+#     }
+#   }
+# }
 
-save(selected_df, file = "selected_df.RData")
-save(df_11_12, file = "NHANES_Clean_2011_2012.RData")
-save(df_13_14, file = "NHANES_Clean_2013_2014.RData")
-save(df_15_16, file = "NHANES_Clean_2015_2016.RData")
-save(df_17_18, file = "NHANES_Clean_2017_2018.RData")
-save(df_full2009, file = "selected_df.RData")
+select <- winsorize(selected_df)
+df0910 <- winsorize(df_full2009)
+df1112 <- winsorize(df_11_12)
+df1314 <- winsorize(df_13_14)
+df1516 <- winsorize(df_15_16)
+df1718 <- winsorize(df_17_18)
+
+
+save(select, file = "selected_Winsorized_df.RData")
+save(df0910, file = "NHANES_Winsorized_2009_2010.RData")
+save(df1112, file = "NHANES_Winsorized_2011_2012.RData")
+save(df1314, file = "NHANES_Winsorized_2013_2014.RData")
+save(df1516, file = "NHANES_Winsorized_2015_2016.RData")
+save(df1718, file = "NHANES_Winsorized_2017_2018.RData")
+
 
