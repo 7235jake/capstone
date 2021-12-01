@@ -5,28 +5,6 @@ date: "11/17/2021"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-for(x in colnames(selected_df)){
-  
-  chi.frame <- data.frame(diabetes = droplevels(selected_df$DIQ010), y = select(selected_df,BMDSTATS))
-  chi.frame <- na.omit(chi.frame)
-  chisq <- chisq.test(table(chi.frame))
-  
-}
-chisq
-summary(chi.frame)
-chi.frame$diabetes <- droplevels(chi.frame$diabetes)
-str(chi.frame$diabetes)
-
-chi.frame <- data.frame(bmi = selected_df$BMXBMI, leg = selected_df$BMXLEG)
-chi.frame$bmi
-chisq <- chisq.test(chi.frame)
-table(chi.frame)
-
-chisq.test(na.omit(selected_df$BMXBMI))
-f <- (droplevels(selected_df$DIQ010))
-summary(droplevels(selected_df$DIQ010))
-```
 
 ```{r}
 library(tidyverse)
@@ -49,7 +27,9 @@ for(x in colnames(df_factors)){
   #Get rid of NAs
   chi.frame <- na.omit(chi.frame)
   #Conduct chi square
-  chisq <- chisq.test(table(chi.frame), simulate.p.value = TRUE)
+  chisq <- chisq.test(table(chi.frame)
+                      , simulate.p.value = TRUE
+                      )
   #For verification you may print the index and summary
   #print(index)
   #print(chisq)
@@ -72,6 +52,20 @@ chisquares
 Need to figure out whats going on with the Diabetes questions having NaN for p_value and test_stat (DIQ 160 170 172 180 )
 
 ```{r}
+quan_qs <- select(selected_df,-names(df_factors))
+summarise(quan_qs,max)
+```
 
+
+```{r}
+factor.glms <- list()
+AIC <- c()
+
+for(x in colnames(df_factors)){
+  glm.frame <- data.frame(diabetes = droplevels(df_factors$DIQ010), y = droplevels(select(df_factors,x)))
+  glm.frame %<>% na.omit()
+  glm.fact <- (glm(diabetes ~ ., family = binomial, data = glm.frame))
+  factor.glms %<>% append(glm.fact)
+}
 ```
 
