@@ -1,0 +1,541 @@
+---
+title: "Modeling"
+author: "Lauren Bradley"
+date: "12/1/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+# Load select_winsorized_df for analysis. 
+# This dataframe includes variables that have more than 10,000 observations.
+# This dataframe also replaced outliers with quantiles. 
+
+load("C:/Users/laure/git/capstone/selected_Winsorized_df.RData")
+
+```
+
+
+First start with variable selection to find which variables appear the most. 
+
+```{r}
+library(tidyverse)
+# On;y the quantitative variables. 
+predictorSet <- c("LBDHDD", "LBDHDDSI", "LBXTR","LBDTRSI" , "LBDLDL"  , "LBDLDLSI", "LBXTC"   , "LBDTCSI" , "LBXGLU"  , "LBDGLUSI" ,"CBD121"  , "CBD131"  ,"DBD900"  , "DBD905"  , "DBD910"  , "PAQ625"  , "PAD630"  , "PAQ670"  , "PAD675"  , "PAD680"  , "WHD010"  , "WHD020"  , "WHD050"  , "WHD110", "WHD120" ,  "WHD130"   ,"WHD140" ,  "WHQ150" ,  "BMXWT"  ,  "BMXHT"  ,  "BMXBMI" ,  "BMXLEG" ,  "BMXARML"  ,"BMXARMC",  "BMXWAIST", "BPD035"  ,"INDFMPIR", "WTINT2YR", "WTMEC2YR")
+
+include_df <- subset(selected_df, select = c(predictorSet))
+
+#One of the big outliers of 9999 and 7777
+include_df$WHD110[include_df$WHD110 == 9999 | include_df$WHD110 == 7777] <- NA
+include_df$WHD120[include_df$WHD120 == 9999] <- NA
+
+include_df$DIQ010 <- selected_df$DIQ010
+include_df$Age <- selected_df$RIDAGEYR
+include_df$Gender <- selected_df$RIAGENDR
+
+
+# Including everything from include_df results in 0
+include_df %>% 
+  select(one_of(names(include_df))) %>% 
+  na.omit() %>% 
+  nrow()
+include_df <- na.omit(include_df)
+
+summary(include_df)
+```
+Include df has only quantitative values in it and the gender + age + diabetes variable. It also has 296 observations.
+
+
+```{r}
+mod1 <- glm(DIQ010 ~ LBDHDD
+ + LBDHDDSI
+ + LBXTR   
+ + LBDTRSI 
+ + LBDLDL  
+ + LBDLDLSI
+ + LBXTC
+ + LBDTCSI
+ + LBXGLU
+ + LBDGLUSI
+ + CBD121
+ + CBD131
+ + DBD900
+ + DBD905
+ + DBD910
+ + PAQ625
+ + PAD630
+ + PAQ670
+ + PAD675
+ + PAD680
+ + WHD010
+ + WHD020
+ + WHD050
+ + WHD110
+ + WHD120
+ + WHD130 
+ + WHD140 
+ + WHQ150  
+ + BMXWT  
+ + BMXHT 
+ + BMXBMI
+ + BMXLEG 
+ + BMXARML 
+ + BMXARMC 
+ + BMXWAIST
+ + BPD035  
+ + INDFMPIR
+ + WTINT2YR
+ + WTMEC2YR + Gender + Age,
+ data = include_df, family = "binomial")
+summary(mod1)
+
+mod0 <- glm(DIQ010 ~ 1,data = include_df, family = "binomial")
+
+model_step_AIC <- step(mod0,
+                       scope = list(lower = mod0, upper = mod1),
+                       direction="forward", k = 2, trace = 0)
+summary(model_step_AIC)
+```
+
+LBXGLU - Fasting Glucose (mg/dL)
+WHD140 - Self-reported greatest weight (pounds)
+PAD675 - Minutes moderate recreational activities
+LBXTC - Total Cholesterol (mg/dL)
+BMXARML - Upper Arm Length (cm)
+INDFMPIR - Ratio of family income to poverty
+PAQ670 - Days moderate recreational activities
+LBDHDDSI - Direct HDL-Cholesterol (mmol/L)
+WTMEC2YR - Full Sample 2 Year MEC Exam Weight
+
+
+
+
+Mod2 is a similar model to model_step_aic but without the insignificant variables
+
+```{r}
+mod2 <- glm(formula = DIQ010 ~ LBXGLU + WHD140 + PAD675 + LBXTC + BMXARML + PAQ670 + LBDHDDSI + WTMEC2YR, family = "binomial", 
+    data = include_df)
+summary(mod2)
+```
+
+
+```{r}
+anova(mod2, model_step_AIC)
+```
+
+The anova says that mod 2 is better than the stepwise
+
+```{r}
+mod3 <- glm(formula = DIQ010 ~ LBXGLU + WHD140 + PAD675 + LBXTC + BMXARML + LBDHDDSI + WTMEC2YR, family = "binomial", 
+    data = include_df)
+summary(mod3)
+```
+
+```{r}
+anova(mod3, model_step_AIC)
+anova(mod3, mod2)
+```
+
+mod3 is better than the step wise and mod2 based on the anova. 
+
+
+
+```{r}
+mod_vars <- subset(include_df, select = c(
+LBXGLU , WHD140 , PAD675 , LBXTC , BMXARML , INDFMPIR , 
+    PAQ670 , LBDHDDSI , WTMEC2YR
+))
+
+pairs(mod_vars)
+```
+
+None of the variables look colinear except maybe WHD140 and BMXARML
+
+
+Creating a tree to see other significant variables. 
+
+```{r}
+library(tree)
+tree1 <- tree(DIQ010 ~ LBDHDD
+ + LBDHDDSI
+ + LBXTR   
+ + LBDTRSI 
+ + LBDLDL  
+ + LBDLDLSI
+ + LBXTC
+ + LBDTCSI
+ + LBXGLU
+ + LBDGLUSI
+ + CBD121
+ + CBD131
+ + DBD900
+ + DBD905
+ + DBD910
+ + PAQ625
+ + PAD630
+ + PAQ670
+ + PAD675
+ + PAD680
+ + WHD010
+ + WHD020
+ + WHD050
+ + WHD110
+ + WHD120
+ + WHD130 
+ + WHD140 
+ + WHQ150  
+ + BMXWT  
+ + BMXHT 
+ + BMXBMI
+ + BMXLEG 
+ + BMXARML 
+ + BMXARMC 
+ + BMXWAIST
+ + BPD035  
+ + INDFMPIR
+ + WTINT2YR
+ + WTMEC2YR + Gender + Age, data = include_df)
+
+summary(tree1)
+```
+
+Tree 1 Variables Used:
+
+LBXGLU - Fasting Glucose (mg/dL)
+BMXWT - Weight (kg)
+WTINT2YR - Full Sample 2 Year Interview Weight
+PAQ625 - Number of days moderate work
+WHD120 - Self-reported weight-age 25 (pounds)
+BPD035 - Age told had hypertension
+INDFMPIR - Ratio of family income to poverty
+LBDHDD - Direct HDL Cholesterol (mg/dL)
+LBXTR - Triglyceride (mg/dL)
+WHD020 - Current self-reported weight (pounds)
+WHD010 - Current self-reported height (inches)
+PAD630 - Minutes moderate-intensity work
+LBXTC - Total Cholesterol (mg/dL)
+DBD910 - # of frozen meals/pizza in past 30 days
+
+
+
+```{r}
+plot(tree1)
+text(tree1, cex = 0.7)
+```
+
+
+```{r}
+tree_df <- subset(include_df, select = c(
+  "LBXGLU" ,  "BMXWT"   , "WTINT2YR", "PAQ625"  , "WHD120",   "BPD035"  , "INDFMPIR", "LBDHDD"  , "LBXTR" ,   "WHD020"  , "WHD010"  , "PAD630",     
+ "LBXTC"  ,  "DBD910"  
+))
+pairs(tree_df[1:5])
+pairs(tree_df[5:10])
+pairs(tree_df[10:14])
+```
+
+No extreme outliers so that is good.
+
+
+------ MAIN VARIABLES I AM INTERESTED IN NOW -----------------------------
+
+LBXGLU - Fasting Glucose (mg/dL)
+BMXWT - Weight (kg)
+WTINT2YR - Full Sample 2 Year Interview Weight
+PAQ625 - Number of days moderate work
+WHD120 - Self-reported weight-age 25 (pounds)
+BPD035 - Age told had hypertension
+INDFMPIR - Ratio of family income to poverty
+LBDHDD - Direct HDL Cholesterol (mg/dL)
+LBXTR - Triglyceride (mg/dL)
+WHD020 - Current self-reported weight (pounds)
+WHD010 - Current self-reported height (inches)
+Age
+LBXTC - Total Cholesterol (mg/dL)
+DBD910 - # of frozen meals/pizza in past 30 days
+PAD675 - Minutes moderate recreational activities
+WTMEC2YR - Full Sample 2 Year MEC Exam Weight
+PAQ670 - Days moderate recreational activities
+WHD110 - Self-reported weight-10 yrs ago (pounds)
+BMXBMI - Body Mass Index (kg/m**2)
+LBDHDDSI - Direct HDL-Cholesterol (mmol/L)
+BMXARML - Upper Arm Length (cm)
+CBD121 - Money spent on eating out
+PAD630 - Minutes moderate-intensity work
+WHD140 - Self-reported greatest weight (pounds)
+
+
+```{r}
+# Selecting variables based on the ones listed. 
+
+var_selected <- subset(selected_df, select = c(
+LBXGLU ,
+BMXWT ,
+WTINT2YR ,
+PAQ625 ,
+WHD120 ,
+BPD035 ,
+INDFMPIR ,
+LBDHDD ,
+LBXTR ,
+WHD020 ,
+WHD010 ,
+RIDAGEYR,
+LBXTC ,
+DBD910 ,
+PAD675 ,
+WTMEC2YR ,
+PAQ670 ,
+WHD110 ,
+BMXBMI ,
+LBDHDDSI ,
+BMXARML ,
+CBD121 ,
+PAD630 ,
+WHD140 ,
+  DIQ010
+))
+
+head(var_selected)
+```
+
+
+Clean var_selected and delete rows with NA
+
+```{r}
+var_selected$WHD140[var_selected$WHD140 == 9999 | var_selected$WHD140 == 7777] <- NA
+
+var_selected %>% 
+  select(one_of(names(var_selected))) %>% 
+  na.omit() %>% 
+  nrow()
+var_selected <- na.omit(var_selected)
+
+var_selected$DIQ010 <- droplevels(var_selected$DIQ010)
+```
+
+Now with the selected variables, 515 observations are available. 
+
+
+```{r}
+null_mod <- glm(DIQ010 ~ 1, data = var_selected, family = "binomial")
+full_mod <- glm(DIQ010 ~ ., data = var_selected, family = "binomial")
+best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+                       direction="forward", k = 2, trace = 0)
+summary(null_mod)
+summary(full_mod)
+summary(best_mod)
+```
+
+
+
+```{r}
+tree2 <- tree(DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI + 
+    RIDAGEYR, data = var_selected)
+summary(tree2)
+```
+
+```{r}
+plot(tree2)
+text(tree2, cex = 0.7)
+```
+
+
+
+```{r}
+rforest2 <- randomForest(DIQ010 ~ ., data = var_selected, ntree = 250, nodesize = 25, importance = TRUE)
+varImpPlot(rforest2, type = 1, main = "")
+```
+
+This plot shows the most important variables. 
+
+```{r}
+pairs(var_selected[1:7])
+pairs(var_selected[8:15])
+pairs(var_selected[16:25])
+```
+
+
+
+----- Training and testing the model! ---------------------------
+
+```{r}
+
+# Creating Training and Testing Dataset
+set.seed(123)
+index <- sample(1:nrow(var_selected), round(nrow(var_selected) * 0.7))
+training_df <- var_selected[index, ]
+testing_df <- var_selected[-index, ]
+
+
+```
+
+```{r}
+training_df$DIQ010 <- as.integer(training_df$DIQ010)
+training_df$DIQ010[training_df$DIQ010 == 1] <- 1
+training_df$DIQ010[training_df$DIQ010 == 2] <- 0
+
+null_mod <- glm(DIQ010 ~ 1, data = training_df, family = "binomial")
+full_mod <- glm(DIQ010 ~ ., data = training_df, family = "binomial")
+best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+                       direction="forward", k = 2, trace = 0)
+summary(null_mod)
+summary(full_mod)
+summary(best_mod)
+```
+
+LBXGLU - Fasting Glucose (mg/dL)
+WTINT2YR - Full Sample 2 Year Interview Weight
+PAD675 - Minutes moderate recreational activities
+LBXTC - Total Cholesterol (mg/dL)
+BMXBMI - Body Mass Index (kg/m**2)
+INDFMPIR - Ratio of family income to poverty
+
+
+```{r}
+csq <- 373.73 - 231.79
+pchisq(csq, df = 6, lower.tail = F)
+```
+This means that the model is a good fit.
+
+```{r}
+odds <- best_mod$coefficients[1] +
+best_mod$coefficients[2]*training_df$LBXGLU +
+best_mod$coefficients[3]*training_df$WTINT2YR +
+best_mod$coefficients[4]*training_df$PAD675 +  
+best_mod$coefficients[5]*training_df$LBXTC +  
+best_mod$coefficients[6]*training_df$BMXBMI + 
+best_mod$coefficients[7]*training_df$INDFMPIR
+
+
+
+
+library(ggplot2)
+ggplot(training_df, aes(x = odds, y = DIQ010)) +
+geom_point() +
+geom_smooth(method = "glm", method.args = list(family = "binomial"), size = 1.5) +
+labs(y = "Probability of diabetes") + theme_bw()
+```
+
+Thresholdd of 0.5
+
+```{r}
+testing_df$DIQ010 <- as.integer(testing_df$DIQ010)
+testing_df$DIQ010[testing_df$DIQ010 == 1] <- 1
+testing_df$DIQ010[testing_df$DIQ010 == 2] <- 0
+
+pihat_train <- predict(best_mod,
+                       newdata = testing_df,
+                       type = "response")
+threshold <- 0.5
+predicted_category <- factor( ifelse(pihat_train > threshold,
+1, 0))
+testing_df$DIQ010 <- as.factor(testing_df$DIQ010)
+
+library(caret)
+
+confusionMatrix(data = predicted_category,
+reference = (testing_df$DIQ010))
+```
+
+88% Accurate!
+
+```{r}
+# Taking out insignificant variables. 
+sigmod <- glm(DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI, family = "binomial", data = training_df)
+summary(sigmod)
+```
+
+Significant variables
+LBXGLU - Fasting Glucose (mg/dL)
+WTINT2YR - Full Sample 2 Year Interview Weight
+PAD675 - Minutes moderate recreational activities
+LBXTC - Total Cholesterol (mg/dL)
+BMXBMI - Body Mass Index (kg/m**2)
+
+
+```{r}
+csq <- 373.73 - 233.95
+pchisq(csq, df = 5, lower.tail = F)
+```
+
+```{r}
+pihat_train <- predict(sigmod,
+                       newdata = testing_df[1:24],
+                       type = "response")
+threshold <- 0.55
+predicted_category <- factor( ifelse(pihat_train > threshold,
+1, 0))
+testing_df$DIQ010 <- as.factor(testing_df$DIQ010)
+
+library(caret)
+
+confusionMatrix(data = predicted_category,
+reference = (testing_df$DIQ010))
+```
+90% accurate!!!
+
+
+```{r}
+pairs(var_selected[c(
+"LBXGLU",
+"WTINT2YR" ,
+"PAD675" ,
+"LBXTC" ,
+"BMXBMI" 
+)])
+```
+
+None look colinear which is good.
+
+```{r}
+anova(sigmod, best_mod)
+```
+
+The anova says that the significant model is better than the stepwise model as well
+
+
+```{r}
+tree_bestmod <- tree(formula = DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI + 
+    INDFMPIR, data = training_df)
+tree_sigmod <- tree(formula = DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI, data = training_df)
+summary(tree_bestmod)
+summary(tree_sigmod)
+```
+
+
+Both have a similar residual mean deviance but sigmod is the best. 
+
+Here is the list of different aics. The best one is from the best_mod. 
+
+```{r}
+aic_list <- c(556.36, 375.52, 350.02, 375.73, 275.16, 245.79, 245.95)
+```
+
+
+
+
+Making a PPROC 
+
+```{r}
+library(ROCR)
+predictictionVal <- prediction(pihat_train, testing_df$DIQ010)
+roc <- performance(predictictionVal,"tpr","fpr")
+plot(roc, colorize = T, lwd = 2)
+abline(a = 0, b = 1)
+```
+
+
+
+
+
+
+--------- Trying to add some factor variables to the model now -------------
+
+
+
