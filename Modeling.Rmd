@@ -535,7 +535,87 @@ abline(a = 0, b = 1)
 
 
 
---------- Trying to add some factor variables to the model now -------------
+----CATEGORICAL SUMMARY ANALYSIS--------------
+Summary: the categorical data either deletes a ton of diabetes observations or is not significant to the model. 
+
+```{r}
+library(tidyverse)
+load("C:/Users/laure/git/capstone/chisquareTestFactors.RData")
+chisquares %<>% arrange(desc(p_value), desc(rowNum), test_stat)
+chisquares
+```
+
+
+```{r}
+# Variables that are significant with diabetes. 
+sig_factor_vars <- chisquares$name[1:5]
+sig_factor_vars
+```
+
+```{r}
+# Creating dataframe with only significant factor variables. The p-value must be > 0.05  to lack statistically significant evidence 
+# that the variables are different from diabetes. 
+set.seed(12)
+factor_var_df <- selected_df[,which(names(selected_df) %in% sig_factor_vars)]
+factor_var_df$DIQ010 <- selected_df$DIQ010
+```
+
+
+Variable Selection with categorical variables:
+
+```{r}
+# 405 variables available for modeling
+factor_var_df <- subset(factor_var_df, select = -c(DBQ360))
+factor_var_df %>% 
+  select(one_of(names(factor_var_df))) %>% 
+  na.omit() %>% 
+  nrow()
+factor_var_df <- na.omit(factor_var_df)
+summary(factor_var_df)
+
+```
+
+
+```{r}
+index <- sample(1:nrow(factor_var_df), round(nrow(factor_var_df) * 0.7))
+cat_train_df <- factor_var_df[index, ]
+cat_test_df <- factor_var_df[-index, ]
+
+cat_train_df$DIQ010 <- as.integer(cat_train_df$DIQ010)
+cat_train_df$DIQ010[cat_train_df$DIQ010 == 1] <- 1
+cat_train_df$DIQ010[cat_train_df$DIQ010 == 2] <- 0
+
+null_mod <- glm(DIQ010 ~ 1, data = cat_train_df, family = "binomial")
+full_mod <- glm(DIQ010 ~ ., data = cat_train_df, family = "binomial")
+best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+                       direction="forward", k = 2, trace = 0)
+summary(null_mod)
+summary(full_mod)
+summary(best_mod)
+```
+
+The categorical variables do not look significant at all.
+
+Try to combine with the categorical model:
+
+
+```{r}
+
+cat_tree <- tree(DIQ010 ~ ., data = cat_test_df)
+summary(cat_tree)
+```
+
+PFQ041
+DBQ9452
+
+I feel like the categorical variables are just not significant.
+If they are, they aren't in the NHANES website. Also that AIC value is terrible. 
+
+----------NEURAL NETWORK MODEL-----------------------
+
+```{r}
+?nn
+```
 
 
 
