@@ -696,7 +696,7 @@ PFQ041
 DBQ9452
 
 I feel like the categorical variables are just not significant.
-If they are, they aren't in the NHANES website. Also that AIC value is terrible. 
+If they are, they aren't in the NHANES website.  
 
 
 #----------NEURAL NETWORK MODEL-----------------------
