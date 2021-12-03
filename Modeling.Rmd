@@ -25,6 +25,8 @@ selected_df$CBD121[selected_df$CBD121 == 777777] <- NA
 ```
 
 
+#------------------Variable selection----------------
+
 First start with variable selection to find which variables appear the most. 
 
 ```{r}
@@ -242,7 +244,7 @@ pairs(tree_df[10:14])
 No extreme outliers so that is good.
 
 
------- MAIN VARIABLES I AM INTERESTED IN NOW -----------------------------
+#------ MAIN VARIABLES I AM INTERESTED IN NOW -----------------------------
 
 LBXGLU - Fasting Glucose (mg/dL)
 BMXWT - Weight (kg)
@@ -363,7 +365,7 @@ pairs(var_selected[16:25])
 
 
 
------ Training and testing the model! ---------------------------
+#----- Training and testing the model! ---------------------------
 
 ```{r}
 
@@ -514,8 +516,112 @@ exp(sigmod$coefficients)
 
 
 
+# Now that good variables are found, subsetting selected_df to only have these varables. 
 
-----CATEGORICAL SUMMARY ANALYSIS--------------
+```{r}
+include_df <- subset(selected_df, select = c(LBXGLU ,
+                                             WTINT2YR ,
+                                             PAD675 ,
+                                             LBXTC ,
+                                             BMXBMI,
+                                             DIQ010))
+
+
+# Including everything from include_df results in 0
+include_df %>% 
+  select(one_of(names(include_df))) %>% 
+  na.omit() %>% 
+  nrow()
+include_df <- na.omit(include_df)
+summary(include_df)
+```
+
+This model has 6128 observations
+
+Creating the training and testing dataframe. 
+
+```{r}
+index <- sample(1:nrow(include_df), round(nrow(include_df) * 0.7))
+training <- include_df[index, ]
+
+training$DIQ010 <- as.integer(training$DIQ010)
+training$DIQ010[training$DIQ010 == 1] <- 1
+training$DIQ010[training$DIQ010 == 2] <- 0
+
+testing <- include_df[-index, ]
+
+testing$DIQ010 <- as.integer(testing$DIQ010)
+testing$DIQ010[testing$DIQ010 == 1] <- 1
+testing$DIQ010[testing$DIQ010 == 2] <- 0
+
+x_train <- training[1:5]
+x_test <- testing[1:5]
+
+y_train <- training[6]
+y_test <- testing[6]
+
+```
+
+
+```{r}
+selected_model <- glm(DIQ010~.,data = training, family = "binomial")
+summary(selected_model)
+print(exp(selected_model$coefficients))
+```
+
+```{r}
+odds <- selected_model$coefficients[1] +
+selected_model$coefficients[2]*training$LBXGLU +
+selected_model$coefficients[3]*training$WTINT2YR +
+selected_model$coefficients[4]*training$PAD675 +  
+selected_model$coefficients[5]*training$LBXTC +  
+selected_model$coefficients[6]*training$BMXBMI
+
+library(ggplot2)
+ggplot(training, aes(x = odds, y = DIQ010)) +
+geom_point() +
+geom_smooth(method = "glm", method.args = list(family = "binomial"), size = 1.5) +
+labs(y = "Probability of diabetes") + theme_bw()
+```
+
+
+
+
+```{r}
+pihat_train <- predict(selected_model,
+                       newdata = x_test,
+                       type = "response")
+threshold <- 0.5
+predicted_category <- factor( ifelse(pihat_train > threshold,
+1, 0))
+testing$DIQ010 <- as.factor(testing$DIQ010)
+
+library(caret)
+
+confusionMatrix(data = predicted_category,
+reference = (testing$DIQ010))
+```
+
+
+```{r}
+library(ROCR)
+predictictionVal <- prediction(pihat_train, testing$DIQ010)
+roc <- performance(predictictionVal,"tpr","fpr")
+plot(roc, colorize = T, lwd = 2)
+abline(a = 0, b = 1)
+```
+
+```{r}
+auc_ROCR <- performance(predictictionVal, measure = "auc")
+auc_ROCR <- auc_ROCR@y.values[[1]]
+
+auc_ROCR
+```
+
+
+
+
+#----CATEGORICAL SUMMARY ANALYSIS--------------
 Summary: the categorical data either deletes a ton of diabetes observations or is not significant to the model. 
 
 ```{r}
@@ -593,11 +699,37 @@ I feel like the categorical variables are just not significant.
 If they are, they aren't in the NHANES website. Also that AIC value is terrible. 
 
 
-----------NEURAL NETWORK MODEL-----------------------
+#----------NEURAL NETWORK MODEL-----------------------
 
 ```{r}
-?nn
+library(keras)
+use_condaenv("tf")
+library(reticulate)
+install_keras(method = c("conda"), conda = "auto", version = "default", tensorflow = "gpu")
+
 ```
+
+```{r}
+model <- keras_model_sequential() 
+model %>% 
+  layer_dense(units = 256, activation = "relu", input_shape = c(784)) %>% 
+  layer_dropout(rate = 0.4) %>% 
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(rate = 0.3) %>%
+  layer_dense(units = 10, activation = "softmax")
+```
+```{python}
+pip install tensorflow==1.2.0 --ignore-installed
+```
+
+```{r}
+summary(model)
+```
+
+
+
+
+
 
 
 
