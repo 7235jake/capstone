@@ -17,6 +17,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # This dataframe also replaced outliers with quantiles. 
 
 load("C:/Users/laure/git/capstone/selected_Winsorized_df.RData")
+selected_df <- select
+selected_df$WHD110[selected_df$WHD110 == 9999 | selected_df$WHD110 == 7777] <- NA
+selected_df$WHD120[selected_df$WHD120 == 9999 | selected_df$WHD120 == 7777] <- NA
+selected_df$CBD121[selected_df$CBD121 == 777777] <- NA
 
 ```
 
@@ -28,11 +32,7 @@ library(tidyverse)
 # On;y the quantitative variables. 
 predictorSet <- c("LBDHDD", "LBDHDDSI", "LBXTR","LBDTRSI" , "LBDLDL"  , "LBDLDLSI", "LBXTC"   , "LBDTCSI" , "LBXGLU"  , "LBDGLUSI" ,"CBD121"  , "CBD131"  ,"DBD900"  , "DBD905"  , "DBD910"  , "PAQ625"  , "PAD630"  , "PAQ670"  , "PAD675"  , "PAD680"  , "WHD010"  , "WHD020"  , "WHD050"  , "WHD110", "WHD120" ,  "WHD130"   ,"WHD140" ,  "WHQ150" ,  "BMXWT"  ,  "BMXHT"  ,  "BMXBMI" ,  "BMXLEG" ,  "BMXARML"  ,"BMXARMC",  "BMXWAIST", "BPD035"  ,"INDFMPIR", "WTINT2YR", "WTMEC2YR")
 
-include_df <- subset(selected_df, select = c(predictorSet))
-
-#One of the big outliers of 9999 and 7777
-include_df$WHD110[include_df$WHD110 == 9999 | include_df$WHD110 == 7777] <- NA
-include_df$WHD120[include_df$WHD120 == 9999] <- NA
+include_df <- subset(select, select = c(predictorSet))
 
 include_df$DIQ010 <- selected_df$DIQ010
 include_df$Age <- selected_df$RIDAGEYR
@@ -348,6 +348,7 @@ text(tree2, cex = 0.7)
 
 
 ```{r}
+library(randomForest)
 rforest2 <- randomForest(DIQ010 ~ ., data = var_selected, ntree = 250, nodesize = 25, importance = TRUE)
 varImpPlot(rforest2, type = 1, main = "")
 ```
@@ -394,26 +395,23 @@ WTINT2YR - Full Sample 2 Year Interview Weight
 PAD675 - Minutes moderate recreational activities
 LBXTC - Total Cholesterol (mg/dL)
 BMXBMI - Body Mass Index (kg/m**2)
-INDFMPIR - Ratio of family income to poverty
-
+-- BMXWT (colinear with bmxbmi so must be removed)
 
 ```{r}
-csq <- 373.73 - 231.79
-pchisq(csq, df = 6, lower.tail = F)
+# Taking out insignificant variables. 
+sigmod <- glm(DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI, family = "binomial", data = training_df)
+summary(sigmod)
 ```
-This means that the model is a good fit.
+
+
 
 ```{r}
-odds <- best_mod$coefficients[1] +
-best_mod$coefficients[2]*training_df$LBXGLU +
-best_mod$coefficients[3]*training_df$WTINT2YR +
-best_mod$coefficients[4]*training_df$PAD675 +  
-best_mod$coefficients[5]*training_df$LBXTC +  
-best_mod$coefficients[6]*training_df$BMXBMI + 
-best_mod$coefficients[7]*training_df$INDFMPIR
-
-
-
+odds <- sigmod$coefficients[1] +
+sigmod$coefficients[2]*training_df$LBXGLU +
+sigmod$coefficients[3]*training_df$WTINT2YR +
+sigmod$coefficients[4]*training_df$PAD675 +  
+sigmod$coefficients[5]*training_df$LBXTC +  
+sigmod$coefficients[6]*training_df$BMXBMI
 
 library(ggplot2)
 ggplot(training_df, aes(x = odds, y = DIQ010)) +
@@ -429,8 +427,8 @@ testing_df$DIQ010 <- as.integer(testing_df$DIQ010)
 testing_df$DIQ010[testing_df$DIQ010 == 1] <- 1
 testing_df$DIQ010[testing_df$DIQ010 == 2] <- 0
 
-pihat_train <- predict(best_mod,
-                       newdata = testing_df,
+pihat_train <- predict(sigmod,
+                       newdata = testing_df[1:24],
                        type = "response")
 threshold <- 0.5
 predicted_category <- factor( ifelse(pihat_train > threshold,
@@ -443,13 +441,7 @@ confusionMatrix(data = predicted_category,
 reference = (testing_df$DIQ010))
 ```
 
-88% Accurate!
-
-```{r}
-# Taking out insignificant variables. 
-sigmod <- glm(DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI, family = "binomial", data = training_df)
-summary(sigmod)
-```
+85% Accurate
 
 Significant variables
 LBXGLU - Fasting Glucose (mg/dL)
@@ -458,27 +450,6 @@ PAD675 - Minutes moderate recreational activities
 LBXTC - Total Cholesterol (mg/dL)
 BMXBMI - Body Mass Index (kg/m**2)
 
-
-```{r}
-csq <- 373.73 - 233.95
-pchisq(csq, df = 5, lower.tail = F)
-```
-
-```{r}
-pihat_train <- predict(sigmod,
-                       newdata = testing_df[1:24],
-                       type = "response")
-threshold <- 0.55
-predicted_category <- factor( ifelse(pihat_train > threshold,
-1, 0))
-testing_df$DIQ010 <- as.factor(testing_df$DIQ010)
-
-library(caret)
-
-confusionMatrix(data = predicted_category,
-reference = (testing_df$DIQ010))
-```
-90% accurate!!!
 
 
 ```{r}
@@ -509,9 +480,6 @@ summary(tree_sigmod)
 ```
 
 
-Both have a similar residual mean deviance but sigmod is the best. 
-
-Here is the list of different aics. The best one is from the best_mod. 
 
 ```{r}
 aic_list <- c(556.36, 375.52, 350.02, 375.73, 275.16, 245.79, 245.95)
@@ -530,6 +498,18 @@ plot(roc, colorize = T, lwd = 2)
 abline(a = 0, b = 1)
 ```
 
+```{r}
+auc_ROCR <- performance(predictictionVal, measure = "auc")
+auc_ROCR <- auc_ROCR@y.values[[1]]
+
+auc_ROCR
+```
+
+This AOC is 0.87
+
+```{r}
+exp(sigmod$coefficients)
+```
 
 
 
@@ -540,6 +520,7 @@ Summary: the categorical data either deletes a ton of diabetes observations or i
 
 ```{r}
 library(tidyverse)
+library(magrittr)
 load("C:/Users/laure/git/capstone/chisquareTestFactors.RData")
 chisquares %<>% arrange(desc(p_value), desc(rowNum), test_stat)
 chisquares
@@ -585,13 +566,13 @@ cat_train_df$DIQ010 <- as.integer(cat_train_df$DIQ010)
 cat_train_df$DIQ010[cat_train_df$DIQ010 == 1] <- 1
 cat_train_df$DIQ010[cat_train_df$DIQ010 == 2] <- 0
 
-null_mod <- glm(DIQ010 ~ 1, data = cat_train_df, family = "binomial")
-full_mod <- glm(DIQ010 ~ ., data = cat_train_df, family = "binomial")
-best_mod <- step(null_mod, scope = list(lower = null_mod, upper = full_mod),
+null_mod2 <- glm(DIQ010 ~ 1, data = cat_train_df, family = "binomial")
+full_mod2 <- glm(DIQ010 ~ ., data = cat_train_df, family = "binomial")
+best_mod2 <- step(null_mod2, scope = list(lower = null_mod2, upper = full_mod2),
                        direction="forward", k = 2, trace = 0)
-summary(null_mod)
-summary(full_mod)
-summary(best_mod)
+summary(null_mod2)
+summary(full_mod2)
+summary(best_mod2)
 ```
 
 The categorical variables do not look significant at all.
@@ -611,11 +592,14 @@ DBQ9452
 I feel like the categorical variables are just not significant.
 If they are, they aren't in the NHANES website. Also that AIC value is terrible. 
 
+
 ----------NEURAL NETWORK MODEL-----------------------
 
 ```{r}
 ?nn
 ```
+
+
 
 
 
