@@ -569,6 +569,9 @@ summary(selected_model)
 print(exp(selected_model$coefficients))
 ```
 
+Shown above is exp(coefficients)
+
+
 ```{r}
 odds <- selected_model$coefficients[1] +
 selected_model$coefficients[2]*training$LBXGLU +
@@ -703,11 +706,11 @@ If they are, they aren't in the NHANES website.
 
 ```{r}
 library(keras)
-use_condaenv("tf")
-library(reticulate)
-install_keras(method = c("conda"), conda = "auto", version = "default", tensorflow = "gpu")
-
+install_keras()
 ```
+
+
+
 
 ```{r}
 model <- keras_model_sequential() 
@@ -718,9 +721,7 @@ model %>%
   layer_dropout(rate = 0.3) %>%
   layer_dense(units = 10, activation = "softmax")
 ```
-```{python}
-pip install tensorflow==1.2.0 --ignore-installed
-```
+
 
 ```{r}
 summary(model)
