@@ -399,6 +399,7 @@ LBXTC - Total Cholesterol (mg/dL)
 BMXBMI - Body Mass Index (kg/m**2)
 -- BMXWT (colinear with bmxbmi so must be removed)
 
+
 ```{r}
 # Taking out insignificant variables. 
 sigmod <- glm(DIQ010 ~ LBXGLU + WTINT2YR + PAD675 + LBXTC + BMXBMI, family = "binomial", data = training_df)
@@ -565,6 +566,8 @@ y_test <- testing[6]
 ```
 
 
+# Finalized model
+
 ```{r}
 selected_model <- glm(DIQ010~.,data = training, family = "binomial")
 summary(selected_model)
@@ -573,6 +576,7 @@ print(exp(selected_model$coefficients))
 
 Shown above is exp(coefficients)
 
+#Finalized Model's Odds curve
 
 ```{r}
 odds <- selected_model$coefficients[1] +
@@ -590,7 +594,7 @@ labs(y = "Probability of diabetes") + theme_bw()
 ```
 
 
-
+#Finalized Model's Confusion Matrix / Accuracy
 
 ```{r}
 pihat_train <- predict(selected_model,
@@ -606,7 +610,7 @@ library(caret)
 confusionMatrix(data = predicted_category,
 reference = (testing$DIQ010))
 ```
-
+# Final models ROC curve
 
 ```{r}
 library(ROCR)
@@ -616,6 +620,8 @@ plot(roc, colorize = T, lwd = 2)
 abline(a = 0, b = 1)
 ```
 
+# Final Model's AUC Score
+
 ```{r}
 auc_ROCR <- performance(predictictionVal, measure = "auc")
 auc_ROCR <- auc_ROCR@y.values[[1]]
@@ -623,7 +629,46 @@ auc_ROCR <- auc_ROCR@y.values[[1]]
 auc_ROCR
 ```
 
+#Histograms of age distribution in overall data and model data
 
+Checking to see age included in model
+```{r}
+library(tidyverse)
+include_dfage <- subset(selected_df, select = c(LBXGLU ,
+                                             WTINT2YR ,
+                                             PAD675 ,
+                                             LBXTC ,
+                                             BMXBMI,
+                                             DIQ010,
+                                             RIDAGEYR))
+
+
+# Including everything from include_df results in 0
+include_dfage %>% 
+  select(one_of(names(include_dfage))) %>% 
+  na.omit() %>% 
+  nrow()
+include_dfage <- na.omit(include_dfage)
+summary(include_dfage)
+```
+
+```{r}
+hist(include_dfage$RIDAGEYR)
+```
+
+```{r}
+hist(selected_df$RIDAGEYR)
+```
+
+```{r}
+X <- selected_df[selected_df$DIQ010 == 1,]
+hist(X$RIDAGEYR, main = "Histogram of Ages with Diabetes in Total", xlab = "AGE")
+```
+
+```{r}
+Y <- include_dfage[include_dfage$DIQ010 == 1,]
+hist(Y$RIDAGEYR, main = "Histogram of Ages with Diabetes for Model", xlab = "AGE")
+```
 
 
 #----CATEGORICAL SUMMARY ANALYSIS--------------
